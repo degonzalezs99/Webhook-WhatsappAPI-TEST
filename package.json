@@ -1,0 +1,25 @@
+{
+  "name": "devawebhook",
+  "version": "1.0.0",
+  "description": "\"# Webhook-WhatsappAPI-TEST\"",
+  "main": "src/server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/degonzalezs99/Webhook-WhatsappAPI-TEST.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/degonzalezs99/Webhook-WhatsappAPI-TEST/issues"
+  },
+  "homepage": "https://github.com/degonzalezs99/Webhook-WhatsappAPI-TEST#readme",
+  "dependencies": {
+    "axios": "^1.13.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1"
+  }
+}
