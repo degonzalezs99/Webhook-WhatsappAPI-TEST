@@ -31,17 +31,24 @@ export const sendButtons = async (to, body, buttons) => {
 };
 
 export const sendText = async (to, text) => {
-  await axios.post(
-    API,
-    {
-      messaging_product: "whatsapp",
-      to,
-      text: { body: text },
-    },
-    {
-      headers: {
-        Authorization: `Bearer ${WHATSAPP_TOKEN}`,
+  try {
+    const response = await axios.post(
+      API,
+      {
+        messaging_product: "whatsapp",
+        to,
+        text: { body: text },
       },
-    }
-  );
+      {
+        headers: {
+          Authorization: `Bearer ${WHATSAPP_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    console.log("✅ Enviado:", response.data);
+  } catch (error) {
+    console.error("❌ Error enviando:", error.response?.data || error.message);
+  }
 };
