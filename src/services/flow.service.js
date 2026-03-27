@@ -6,9 +6,9 @@ export const handleFlow = async (user, input) => {
 
   switch (state.step) {
     case "WELCOME":
-      await sendButtons(user, "⚡ ¡Hola! Bienvenido/a a MonterosGas. 🔥 \nSomos tu proveedor de confianza de *tanques y gas LP* con entrega rápida y servicio directo.\n✅ Entregas a domicilio\n✅ Precios competitivos\n✅ Atención inmediata\nCuéntanos, ¿qué necesitas hoy?\nEstamos listos para atenderte. 👇", [
+      await sendButtons(user, "⚡ ¡Hola! Bienvenido/a a MonterosGas. 🔥 \nCuéntanos, ¿En qué podemos ayudarte?👇", [
         { id: "VENTAS", title: "🛒 Ventas" },
-        { id: "SERVICIO_CLIENTE", title: "👨‍💼 Servicio al cliente" },
+        { id: "SERVICIO_CLIENTE", title: "👨‍💼 Soporte" },
       ]);
       return setState(user, { step: "MENU" });
 
