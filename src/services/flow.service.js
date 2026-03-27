@@ -6,14 +6,14 @@ export const handleFlow = async (user, input) => {
 
   switch (state.step) {
     case "WELCOME":
-      await sendButtons(user, "👋 Bienvenido", [
-        { id: "ORDER", title: "🛒 Pedido" },
-        { id: "AGENT", title: "👨‍💼 Asesor" },
+      await sendButtons(user, "⚡ ¡Hola! Bienvenido/a a MonterosGas. 🔥 \nSomos tu proveedor de confianza de *tanques y gas LP* con entrega rápida y servicio directo.\n✅ Entregas a domicilio\n✅ Precios competitivos\n✅ Atención inmediata\nCuéntanos, ¿qué necesitas hoy?\nEstamos listos para atenderte. 👇", [
+        { id: "VENTAS", title: "🛒 Ventas" },
+        { id: "SERVICIO_CLIENTE", title: "👨‍💼 Servicio al cliente" },
       ]);
       return setState(user, { step: "MENU" });
 
     case "MENU":
-      if (input === "ORDER") {
+      if (input === "VENTAS") {
         await sendButtons(user, "¿Ya eres cliente?", [
           { id: "EXISTING", title: "Sí" },
           { id: "NEW", title: "No" },
@@ -41,7 +41,12 @@ export const handleFlow = async (user, input) => {
 
     case "ADDRESS":
       setState(user, { ...state, address: input, step: "PAYMENT" });
-      await sendText(user, "💳 Método de pago");
+      //await sendText(user, "💳 Método de pago");
+      await sendButtons(user, "💳 Método de pago", [
+          { id: "SINPE", title: "SINPE" },
+          { id: "EFECTIVO", title: "EFECTIVO" },
+          { id: "TRANSFERENCIA", title: "TRANSFERENCIA" },
+        ]);
       break;
 
     case "PAYMENT":
