@@ -53,12 +53,15 @@ export const handleFlow = async (user, input) => {
           { id: "GAZA", title: "Gaza" },
         ]);
         //return setState(user, { step: "PRODUCT" });
-        return setState(user, { ...state,type: "ACCESORIO",product: input,step: "SIZE", retries: 0 });
+        return setState(user, { ...state,type: "ACCESORIO", product: input, step: "SIZE", retries: 0 });
       }
       else if (input === "SERVICIO_CLIENTE") {
         await sendText(user, "¿Dinos en que podemos ayudarte?");
         
         return setState(user, { step: "SUPPORT" });
+      }
+      else{
+        await sendText(user, "⚠️ Opción no válida. Por favor, selecciona una opción del menú.");
       }
       break;
 
@@ -92,7 +95,7 @@ export const handleFlow = async (user, input) => {
       break;
     
     case "SIZE":
-      if (!input.includes("L")) {
+      if (!input.includes("L") && !["MANGUERA", "GAZA", "REGULADOR"].includes(input) ) {
         const stop = await handleRetry(user,state,"⚠️ Selecciona una opción válida de la lista.");
         if (stop) return;
         return;}
@@ -162,8 +165,8 @@ export const handleFlow = async (user, input) => {
             `🔢 Cantidad: ${order.quantity}\n` +
             `💰 Total: ${formatCRC(total)}\n` +
             `📍 Dirección: ${order.address}\n` +
-            `💳 Pago: ${order.payment}\n` +
-            `⏱️ Tu pedido será procesado inmediatamente al confirmar.` 
+            `💳 Pago: ${order.payment}\n` 
+            
         );
         await sendText(user, '⏱️ Tu pedido será procesado inmediatamente al confirmar.');
 
