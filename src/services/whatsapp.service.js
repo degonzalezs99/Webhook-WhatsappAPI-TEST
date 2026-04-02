@@ -29,6 +29,31 @@ export const sendButtons = async (to, body, buttons) => {
     }
   );
 };
+export const sendList = async (to, body, buttonText, sections) => {
+  await axios.post(
+    API,
+    {
+      messaging_product: "whatsapp",
+      to,
+      type: "interactive",
+      interactive: {
+        type: "list",
+        body: { text: body },
+        action: {
+          button: buttonText,
+          sections,
+        },
+      },
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${WHATSAPP_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
+};
+
 
 export const sendText = async (to, text) => {
   try {
