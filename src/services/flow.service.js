@@ -49,7 +49,7 @@ export const handleFlow = async (user, input) => {
       else if (input === "ACCESORIOS") {
         await sendButtons(user, "¿Que accesorio ocupas?", [
           { id: "REGULATOR", title: "Regulador" },
-          { id: "HOSE", title: "Manguera" },
+          { id: "MANGUERA", title: "Manguera" },
           { id: "GAZA", title: "Gaza" },
         ]);
         //return setState(user, { step: "PRODUCT" });
