@@ -165,7 +165,8 @@ export const handleFlow = async (user, input) => {
             `🔢 Cantidad: ${order.quantity}\n` +
             `💰 Total: ${formatCRC(total)}\n` +
             `📍 Dirección: ${order.address}\n` +
-            `💳 Pago: ${order.payment}\n` 
+            `💳 Pago: ${order.payment}\n` +
+            `Tu nombre: ${nombre}\n` 
             
         );
         await sendText(user, '⏱️ Tu pedido será procesado inmediatamente al confirmar.');
