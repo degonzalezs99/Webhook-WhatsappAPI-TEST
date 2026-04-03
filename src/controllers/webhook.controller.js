@@ -44,7 +44,7 @@ export const webhookHandler = async (req, res) => {
 
     if (!data) return res.sendStatus(400);
 
-    const { from, input, name, phoneNumberId } = data;
+    const { from, input, name, phoneNumberId, messageId } = data;
 
     // 🔥 Buscar usuario en tu backend
     let user = await getUserByPhone(from);
@@ -55,6 +55,7 @@ export const webhookHandler = async (req, res) => {
         phone: from,
         name,
         phoneNumberId,
+        messageId,
       });
     }
 
