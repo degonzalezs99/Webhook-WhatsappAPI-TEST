@@ -16,28 +16,6 @@ export const verifyWebhook = (req, res) => {
   res.sendStatus(403);
 };
 
-// export const receiveMessage = async (req, res) => {
-//   try {
-//     const message = req.body.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
-//     if (!message) return res.sendStatus(200);
-
-//     const from = message.from;
-
-//     const text = message.text?.body;
-//     const button = message?.interactive?.button_reply?.id;
-//     const list = message?.interactive?.list_reply?.id;
-
-//     const input = button || list || text;
-
-//     await handleFlow(from, input);
-
-//     res.sendStatus(200);
-//   } catch (error) {
-//     console.error(error);
-//     res.sendStatus(500);
-//   }
-// };
-
 export const webhookHandler = async (req, res) => {
   try {
     const data = extractWhatsAppData(req.body);
