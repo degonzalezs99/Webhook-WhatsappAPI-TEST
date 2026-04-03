@@ -8,7 +8,7 @@ export const handleFlow = async (user, input) => {
   const isValidOption = (input, validOptions) => { return validOptions.includes(input);};
   
   const normalize = (text) => (text || "").trim().toUpperCase();
-  input = normalize(input);
+  input = normalize(input || "");
   const MAX_RETRIES = 2;
   const handleRetry = async (user, state, message) => {
    

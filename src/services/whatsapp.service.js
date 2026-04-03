@@ -8,7 +8,7 @@ export const sendButtons = async (to, body, buttons) => {
     API,
     {
       messaging_product: "whatsapp",
-      to,
+      to: typeof to === "string" ? to : to.phone,
       type: "interactive",
       interactive: {
         type: "button",
@@ -34,7 +34,7 @@ export const sendList = async (to, body, buttonText, sections) => {
     API,
     {
       messaging_product: "whatsapp",
-      to,
+      to: typeof to === "string" ? to : to.phone,
       type: "interactive",
       interactive: {
         type: "list",
@@ -61,7 +61,7 @@ export const sendText = async (to, text) => {
       API,
       {
         messaging_product: "whatsapp",
-        to,
+        to: typeof to === "string" ? to : to.phone,
         text: { body: text },
       },
       {
