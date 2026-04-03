@@ -39,6 +39,7 @@ export const verifyWebhook = (req, res) => {
 // };
 
 export const webhookHandler = async (req, res) => {
+  console.log("📩 Webhook recibido:", JSON.stringify(req.body, null, 2));
   try {
     const data = extractWhatsAppData(req.body);
 
@@ -63,7 +64,7 @@ export const webhookHandler = async (req, res) => {
       { phone: from, nombre: user.name, phoneNumberId },
       input
     );
-
+    console.log("📦 Data procesada:", data);
     return res.sendStatus(200);
   } catch (error) {
     console.error("Webhook error:", error);

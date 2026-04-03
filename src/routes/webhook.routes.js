@@ -5,7 +5,7 @@ const router = express.Router();
 
 router.get("/", verifyWebhook);
 //router.post("/", receiveMessage);
-router.post("/webhook", webhookHandler);
+router.post("/", webhookHandler);
 
 
 export default router;
