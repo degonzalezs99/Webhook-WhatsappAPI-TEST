@@ -79,6 +79,8 @@ export const handleFlow = async (user, input) => {
                     { id: "CONTAINER_25L", title: "Envase 25L" },
                     { id: "CONTAINER_35L", title: "Envase 35L" },
                     { id: "CONTAINER_40L", title: "Envase 40L" },
+                    { id: "CONTAINER_50L", title: "Envase 50L" },
+                    { id: "CONTAINER_100L", title: "Envase 100L" },
                   ]
                 : [
                     { id: "RECHARGE_10L", title: "GasLP 10L" },
@@ -86,6 +88,9 @@ export const handleFlow = async (user, input) => {
                     { id: "RECHARGE_25L_RO", title: "GasLP 25L Rosca" },
                     { id: "RECHARGE_25L_PR", title: "GasLP 25L Presión" },
                     { id: "RECHARGE_35L", title: "GasLP 35L" },
+                    { id: "RECHARGE_40L", title: "GasLP 40L" },
+                    { id: "RECHARGE_50L", title: "GasLP 50L" },
+                    { id: "RECHARGE_100L", title: "GasLP 100L" },
                   ],
             },
           ]
@@ -108,7 +113,7 @@ export const handleFlow = async (user, input) => {
         break;  
 
     case "QUANTITY":
-      if (!isValidOption(input, ["1", "2", "3"])) {
+      if (!isValidOption(input, ["1", "2", "3","4","5"]) ) {
         const stop = await handleRetry(user,state,"⚠️ Selecciona una cantidad válida.");
         if (stop) return;
         return;
