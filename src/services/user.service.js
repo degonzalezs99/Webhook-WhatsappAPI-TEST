@@ -14,4 +14,5 @@ export const createUser = async ({ phone, name, phoneNumberId }) => {
 
 export const updateUser = async (phone, payload) => {
   return await updateCustomer(phone, payload);
+  
 };

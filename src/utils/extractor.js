@@ -3,6 +3,7 @@ export const extractWhatsAppData = (body) => {
     const value = body.entry?.[0]?.changes?.[0]?.value;
 
     // 🔥 ignorar si no hay mensaje
+    
     if (!value?.messages) return null;
 
     const message = value.messages[0];
