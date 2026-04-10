@@ -228,6 +228,9 @@ import { createWorkOrder, getProducts } from "../services/backendApi.js";
 export const handleFlow = async (user, input) => {
   const state = getState(user);
   const isValidOption = (input, validOptions) => validOptions.includes(input);
+  const testproducrts = await getProducts();
+  console.log("PRODUCTS FROM BACKEND:", testproducrts);
+
 
   const normalize = (text) => (text || "").trim().toUpperCase();
   input = normalize(input || "");
@@ -632,7 +635,7 @@ export const handleFlow = async (user, input) => {
 
       return resetState(user);
     }
-    
+
     case "SUPPORT": {
       await sendText(user, "📞 Un agente te contactará pronto. ¡Gracias!");
       return resetState(user);
