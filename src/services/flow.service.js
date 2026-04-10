@@ -422,16 +422,30 @@ export const handleFlow = async (user, input) => {
         return;
       }
       setState(user, { ...state, size: input, step: "QUANTITY", retries: 0 });
-      await sendButtons(user, "🔢 ¿Cuántos deseas?", [
-        { id: "1", title: "1" }, { id: "2", title: "2" },
-        { id: "3", title: "3" }, { id: "4", title: "4" },
-        { id: "5", title: "5" }, { id: "6", title: "6" },
-        { id: "7", title: "7" }, 
-      ]);
+     
+      await sendList(user, "🔢 ¿Cuántos deseas?","Ver opciones",
+          [
+            {
+              title: "Cantidad",
+              rows: [
+                { id: "1", title: "1" },
+                { id: "2", title: "2" },
+                { id: "3", title: "3" },
+                { id: "4", title: "4" },
+                { id: "5", title: "5" },
+                { id: "6", title: "6" },
+                { id: "7", title: "7" },
+              ]
+            }
+          ]
+        );
       break;
     }
 
 
+
+
+    
 
 
     case "QUANTITY": {
