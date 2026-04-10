@@ -1,10 +1,16 @@
+import { BACKEND_URL, BACKEND_TOKEN } from "../config/env.js";
+
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://monterosgas.com/bck",
+  baseURL: BACKEND_URL,
+  auth: {
+    token: BACKEND_TOKEN,
+  },
   headers: {
     "Content-Type": "application/json",
   },
+
   timeout: 8000,
 });
 

@@ -447,10 +447,7 @@ export const handleFlow = async (user, input) => {
       break;
     }
 
-
-
-
-    
+ 
 
 
     case "QUANTITY": {
