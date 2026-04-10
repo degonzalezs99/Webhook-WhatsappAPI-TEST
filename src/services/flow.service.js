@@ -223,6 +223,8 @@ import { sendButtons, sendText, sendList } from "./whatsapp.service.js";
 import { getState, setState, resetState } from "../utils/stateManager.js";
 import { getUserByPhone, createUser, updateUser } from "../services/user.service.js";
 
+import { createWorkOrder, getProducts } from "../services/backendApi.js";
+
 export const handleFlow = async (user, input) => {
   const state = getState(user);
   const isValidOption = (input, validOptions) => validOptions.includes(input);
@@ -559,6 +561,31 @@ export const handleFlow = async (user, input) => {
     // ✅ CONFIRMACIÓN FINAL
     // ─────────────────────────────────────────────
 
+    // case "CONFIRM": {
+    //   if (!isValidOption(input, ["CONFIRM", "CANCEL"])) {
+    //     const stop = await handleRetry(user, state, "⚠️ Selecciona una opción válida.");
+    //     if (stop) return;
+    //     return;
+    //   }
+
+    //   if (input === "CONFIRM") {
+    //     await sendText(user, "🎉 ¡Orden creada correctamente! Tu número de pedido es *#1234*.");
+
+    //     if (state.invoice) {
+    //       await sendText(
+    //         user,
+    //         `🧾 *Datos de tu factura electrónica:*\n\n` +
+    //         `📧 Email: ${state.invoiceEmail}\n` +
+    //         `🏢 Actividad: ${state.invoiceActividad}\n` +
+    //         `🪪 Cédula: ${state.invoiceCedula}`
+    //       );
+    //     }
+    //   } else {
+    //     await sendText(user, "❌ Pedido cancelado. ¡Cuando gustes vuelve!");
+    //   }
+
+    //   return resetState(user);
+    // }
     case "CONFIRM": {
       if (!isValidOption(input, ["CONFIRM", "CANCEL"])) {
         const stop = await handleRetry(user, state, "⚠️ Selecciona una opción válida.");
@@ -567,24 +594,45 @@ export const handleFlow = async (user, input) => {
       }
 
       if (input === "CONFIRM") {
-        await sendText(user, "🎉 ¡Orden creada correctamente! Tu número de pedido es *#1234*.");
+        try {
+          const newOrder = await createWorkOrder({
+            customerPhone: user.phone,
+            customerName: user.nombre,
+            productId: state.productId,
+            type: state.type,
+            size: state.size,
+            quantity: parseInt(state.quantity),
+            paymentMethod: state.payment,
+            address: state.address,
+            invoice: state.invoice
+              ? {
+                  email: state.invoiceEmail,
+                  actividad: state.invoiceActividad,
+                  cedula: state.invoiceCedula,
+                }
+              : null,
+          });
 
-        if (state.invoice) {
           await sendText(
             user,
-            `🧾 *Datos de tu factura electrónica:*\n\n` +
-            `📧 Email: ${state.invoiceEmail}\n` +
-            `🏢 Actividad: ${state.invoiceActividad}\n` +
-            `🪪 Cédula: ${state.invoiceCedula}`
+            `🎉 ¡Orden creada! Tu número de pedido es *#${newOrder.id || newOrder._id || newOrder.orderId}*.`
+          );
+
+        } catch (error) {
+          console.error("Error creando orden:", error.message);
+          await sendText(
+            user,
+            "⚠️ Hubo un problema al procesar tu orden. Por favor contáctanos directamente."
           );
         }
+
       } else {
         await sendText(user, "❌ Pedido cancelado. ¡Cuando gustes vuelve!");
       }
 
       return resetState(user);
     }
-
+    
     case "SUPPORT": {
       await sendText(user, "📞 Un agente te contactará pronto. ¡Gracias!");
       return resetState(user);
@@ -600,11 +648,40 @@ export const handleFlow = async (user, input) => {
 // 🧾 Helper: construye resumen y pide confirmación
 // ─────────────────────────────────────────────
 const buildSummaryAndConfirm = async (user, order, address) => {
-  const prices = { "10L": 5000, "20L": 9000, "25L": 12000 };
-  const sizeKey = order.size?.split("_")[1];
-  const price = prices[sizeKey] || 0;
-  const total = price * (order.quantity || 1);
+  //const prices = { "10L": 5000, "20L": 9000, "25L": 12000 };
+  //const sizeKey = order.size?.split("_")[1];
+  //const price = prices[sizeKey] || 0;
+  //const total = price * (order.quantity || 1);
 
+  let price = 0;
+  let productId = null;
+
+  try {
+    const products = await getProducts();
+    const sizeKey = order.size
+      ?.replace("CONTAINER_", "")
+      ?.replace("RECHARGE_", "")
+      ?.replace("_RO", " Rosca")
+      ?.replace("_PR", " Presión");
+
+    const match = products.find(
+      (p) =>
+        p.size === sizeKey &&
+        p.type?.toUpperCase() === order.type
+    );
+
+    if (match) {
+      price = match.price;
+      productId = match.id || match._id;
+    }
+  } catch (err) {
+    console.error("Error obteniendo precio:", err.message);
+  }
+
+  const total = price * (order.quantity || 1);
+  
+  // Formateo de moneda local
+  
   const formatCRC = (n) =>
     new Intl.NumberFormat("es-CR", { style: "currency", currency: "CRC" }).format(n);
 
@@ -637,5 +714,5 @@ const buildSummaryAndConfirm = async (user, order, address) => {
     { id: "CANCEL", title: "❌ Cancelar" },
   ]);
 
-  return setState(user, { ...order, address, step: "CONFIRM", retries: 0 });
+  return setState(user, { ...order, address, productId, step: "CONFIRM", retries: 0 });
 };

@@ -1,14 +1,17 @@
+import {
+  getCustomerByPhone,
+  createCustomer,
+  updateCustomer,
+} from "./backendApi.js";
+
 export const getUserByPhone = async (phone) => {
-  // luego conectas API o DB
-  return null;
+  return await getCustomerByPhone(phone);
 };
 
-export const createUser = async (user) => {
-  console.log("Creating user:", user);
-  return user;
+export const createUser = async ({ phone, name, phoneNumberId }) => {
+  return await createCustomer({ phone, name, phoneNumberId });
 };
 
-export const updateUser = async (phone, data) => {
-  console.log(`Updating user ${phone} with:`, data);
-  return { phone, ...data };
+export const updateUser = async (phone, payload) => {
+  return await updateCustomer(phone, payload);
 };
