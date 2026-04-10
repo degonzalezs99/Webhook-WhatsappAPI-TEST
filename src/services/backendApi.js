@@ -1,11 +1,11 @@
-import { BACKEND_URL, BACKEND_TOKEN } from "../config/env.js";
+import { BACKEND_URL } from "../config/env.js";
 
 import axios from "axios";
 
 const api = axios.create({
   baseURL: BACKEND_URL,
   auth: {
-    token: BACKEND_TOKEN,
+    token: process.env.BACKEND_TOKEN,
   },
   headers: {
     "Content-Type": "application/json",
