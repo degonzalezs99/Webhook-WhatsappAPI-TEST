@@ -435,7 +435,7 @@ export const handleFlow = async (user, input) => {
 
 
     case "QUANTITY": {
-      if (!isValidOption(input, ["1", "2", "3", "4", "5"])) {
+      if (!isValidOption(input, ["1", "2", "3", "4", "5","6","7"])) {
         const stop = await handleRetry(user, state, "⚠️ Selecciona una cantidad válida.");
         if (stop) return;
         return;
