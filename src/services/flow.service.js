@@ -281,7 +281,7 @@ export const handleFlow = async (user, input) => {
         ]
       );
       return setState(user, { step: "MENU" ,initialized: true});
-    } else {
+    } else if (existingUser === "Cliente no encontrado") {
       // ❌ Usuario nuevo → pedimos nombre
       await sendText(
         user,

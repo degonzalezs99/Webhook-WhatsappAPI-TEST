@@ -58,7 +58,10 @@ export const getCustomerByPhone = async (phone) => {
     const { data } = await api.get(`/api/customers/by-phone/${phoneFormatted}`);
     return data;
   } catch (error) {
-    if (error.response?.status === 404) return null;
+    if (error.response?.status === 404) {
+      const message = "Cliente no encontrado";
+      return message;
+    }
     throw error;
   }
 };

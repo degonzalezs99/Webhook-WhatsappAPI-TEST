@@ -6,7 +6,9 @@ async function test() {
     
     const API_KEY = "SUPER_SECRET_KEY_FOR_INTERNAL_USE_ONLY"; // ⚠️ usa la misma del .env del backend
 
-    const phone = encodeURIComponent("+506 2563-2562");
+    //const phone = encodeURIComponent("+506 2563-2562");
+    const phone = encodeURIComponent("+506 6038-4406");
+    
 
     const url = `https://monterosgas.com/bck/api/customers/by-phone/${phone}`;
 
