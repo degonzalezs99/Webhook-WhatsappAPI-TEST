@@ -1,9 +1,7 @@
-import { BACKEND_URL } from "../config/env.js";
-
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: BACKEND_URL,
+  baseURL: process.env.BACKEND_URL,
   auth: {
     token: process.env.BACKEND_TOKEN,
   },
