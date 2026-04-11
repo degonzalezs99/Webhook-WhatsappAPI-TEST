@@ -53,10 +53,8 @@ export const getWorkOrderById = async (id) => {
 // Buscar cliente por teléfono
 export const getCustomerByPhone = async (phone) => {
   try {
-    const encodedPhone = encodeURIComponent(phone);
-
-    const { data } = await api.get(`/api/customers/by-phone/${encodedPhone}`);
-
+    const phoneFormatted = formatPhoneForDB(phone);
+    const { data } = await api.get(`/api/customers/by-phone/${phoneFormatted}`);
     return data;
   } catch (error) {
     if (error.response?.status === 404) return null;
