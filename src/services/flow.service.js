@@ -313,38 +313,27 @@ export const handleFlow = async (user, input) => {
     }
 
     case "REGISTER_CONFIRM_NAME": {
-      if (input === "NO") {
+      if (input === "SI") {
+        
+        const newCustomer = 'NUEVO USUARIO';
+        await sendButtons(
+          user,
+          `¡Perfecto, ${state.tempName}! 🎉 Ya estás registrado/a.\n\n¿En qué podemos ayudarte?`,
+          [
+            { id: "VENTAS", title: "🛒 Ventas y Recargas" },
+            { id: "ACCESORIOS", title: "🔧 Accesorios" },
+            { id: "SERVICIO_CLIENTE", title: "👨‍💼 Soporte" },
+          ]
+        );
+        return setState(user, { step: "MENU" });
+      }
+      else if (input === "NO") {
         await sendText(user, "Sin problema, ¿Cuál es tu nombre?");
         return setState(user, { step: "REGISTER_NAME", retries: 0 });
       }
 
-      if (input === "SI") {
-        //const stop = await handleRetry(user, state, "⚠️ Selecciona una opción válida.");
-        //if (stop) return;
-        const newCustomer = 'NUEVO USUARIO';
 
-        return;
-      }
-
-      // // ✅ Creamos el usuario en BD
-      // const newUser = await createUser({
-      //   phone: user.phone,
-      //   name: state.tempName,
-      //   phoneNumberId: user.phoneNumberId,
-      // });
-
-      // user.nombre = newUser.name;
-
-      await sendButtons(
-        user,
-        `¡Perfecto, ${state.tempName}! 🎉 Ya estás registrado/a.\n\n¿En qué podemos ayudarte?`,
-        [
-          { id: "VENTAS", title: "🛒 Ventas y Recargas" },
-          { id: "ACCESORIOS", title: "🔧 Accesorios" },
-          { id: "SERVICIO_CLIENTE", title: "👨‍💼 Soporte" },
-        ]
-      );
-      return setState(user, { step: "MENU" });
+      
     }
 
     // ─────────────────────────────────────────────
