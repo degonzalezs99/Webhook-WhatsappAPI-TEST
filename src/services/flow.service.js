@@ -230,7 +230,7 @@ export const handleFlow = async (user, input) => {
   const isValidOption = (input, validOptions) => validOptions.includes(input);
   
   
-  const phoneTest = encodeURIComponent("+506 2563-2562");
+  const phoneTest = "50625632562";
   const testcostumer = await CustomerTest(phoneTest);
   console.log("Customer FROM BACKEND:", testcostumer);
 
@@ -260,6 +260,7 @@ export const handleFlow = async (user, input) => {
   // Si no hay step aún, verificamos si el usuario existe en BD
   if (!state.step) {
     const existingUser = await getUserByPhone(user.phone);
+    console.log("Existing user:", existingUser);
 
     if (existingUser) {
       // ✅ Usuario encontrado, actualizamos nombre en memoria y arrancamos
