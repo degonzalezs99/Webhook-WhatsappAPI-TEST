@@ -322,24 +322,21 @@ export const handleFlow = async (user, input) => {
       if (input === "SI") {
         
         const newCustomer = 'NUEVO USUARIO';
-        await sendButtons(
-          user,
-          `¡Perfecto, ${state.tempName}! 🎉 Ya estás registrado/a.\n\n¿En qué podemos ayudarte?`,
+
+        await sendButtons(user,`¡Perfecto, ${state.tempName}! 🎉 Ya estás registrado/a.\n\n¿En qué podemos ayudarte?`,
           [
             { id: "VENTAS", title: "🛒 Ventas y Recargas" },
             { id: "ACCESORIOS", title: "🔧 Accesorios" },
             { id: "SERVICIO_CLIENTE", title: "👨‍💼 Soporte" },
           ]
         );
-        return setState(user, { step: "MENU" });
-      }
-      else if (input === "NO") {
+        return setState(user, { step: "MENU", retries: 0 });
+      
+      } else if (input === "NO") {
         await sendText(user, "Sin problema, ¿Cuál es tu nombre?");
         return setState(user, { step: "REGISTER_NAME", retries: 0 });
       }
-
-
-      
+      break;
     }
 
     // ─────────────────────────────────────────────
