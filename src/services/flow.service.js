@@ -229,8 +229,9 @@ export const handleFlow = async (user, input) => {
   const state = getState(user);
   const isValidOption = (input, validOptions) => validOptions.includes(input);
   
-  console.log("Phone received for test:", user.phone);
-  const testcostumer = await CustomerTest(user.phone);
+  
+  const phoneTest = encodeURIComponent("+506 2563-2562");
+  const testcostumer = await CustomerTest(phoneTest);
   console.log("Customer FROM BACKEND:", testcostumer);
 
 
