@@ -258,7 +258,7 @@ export const handleFlow = async (user, input) => {
   // ─────────────────────────────────────────────
 
   // Si no hay step aún, verificamos si el usuario existe en BD
-  if (!state.step) {
+  if (!state.initialized) {
     const existingUser = await getUserByPhone(user.phone);
     console.log("Existing user:", existingUser);
 
@@ -274,14 +274,14 @@ export const handleFlow = async (user, input) => {
           { id: "SERVICIO_CLIENTE", title: "👨‍💼 Soporte" },
         ]
       );
-      return setState(user, { step: "MENU" });
+      return setState(user, { step: "MENU" ,initialized: true});
     } else {
       // ❌ Usuario nuevo → pedimos nombre
       await sendText(
         user,
         `👋 ¡Hola! Bienvenido/a a *MonterosGas*. 🔥\nParece que es tu primera vez con nosotros.\n\n¿Cuál es tu nombre?`
       );
-      return setState(user, { step: "REGISTER_NAME" });
+      return setState(user, { step: "REGISTER_NAME",initialized: true });
     }
   }
 
