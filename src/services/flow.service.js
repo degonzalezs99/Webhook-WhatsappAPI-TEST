@@ -223,13 +223,14 @@ import { sendButtons, sendText, sendList } from "./whatsapp.service.js";
 import { getState, setState, resetState } from "../utils/stateManager.js";
 import { getUserByPhone, createUser, updateUser } from "../services/user.service.js";
 
-import { createWorkOrder, getProducts } from "../services/backendApi.js";
+import { createWorkOrder, getProducts, CustomerTest } from "../services/backendApi.js";
 
 export const handleFlow = async (user, input) => {
   const state = getState(user);
   const isValidOption = (input, validOptions) => validOptions.includes(input);
-  const testproducrts = await getProducts();
-  console.log("PRODUCTS FROM BACKEND:", testproducrts);
+  
+  const testcostumer = await CustomerTest();
+  console.log("Customer FROM BACKEND:", testcostumer);
 
 
   const normalize = (text) => (text || "").trim().toUpperCase();

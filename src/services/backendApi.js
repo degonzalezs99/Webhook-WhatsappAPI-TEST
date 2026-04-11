@@ -70,3 +70,9 @@ export const updateCustomer = async (phone, payload) => {
   const { data } = await api.patch(`/api/customers/phone/${phone}`, payload);
   return data;
 };
+
+// Actualizar cliente
+export const CustomerTest = async (phone, payload) => {
+  const { data } = await api.patch(`/api/customers/phone/${phone}`, payload);
+  return data;
+};
