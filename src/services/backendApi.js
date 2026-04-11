@@ -50,7 +50,6 @@ export const getWorkOrderById = async (id) => {
 // ─────────────────────────────────────────────
 
 // Buscar cliente por teléfono
-// Buscar cliente por teléfono
 export const getCustomerByPhone = async (phone) => {
   try {
     const phoneFormatted = formatPhoneForDB(phone);
@@ -63,8 +62,8 @@ export const getCustomerByPhone = async (phone) => {
 };
 
 // Crear cliente nuevo
-export const createCustomer = async (customerPayload) => {
-  const { data } = await api.post("/api/customers", customerPayload);
+export const createCustomer = async (customerData) => {
+  const { data } = await api.post("/api/customers/create-customer", customerData);
   return data;
 };
 

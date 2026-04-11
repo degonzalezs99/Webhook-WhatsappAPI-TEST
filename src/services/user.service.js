@@ -8,11 +8,11 @@ export const getUserByPhone = async (phone) => {
   return await getCustomerByPhone(phone);
 };
 
-export const createUser = async ({ phone, name, phoneNumberId }) => {
-  return await createCustomer({ phone, name, phoneNumberId });
+export const createCustomer = async (customerData) => {
+  return await createCustomer(customerData);
 };
 
 export const updateUser = async (phone, payload) => {
   return await updateCustomer(phone, payload);
-  
+
 };

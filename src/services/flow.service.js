@@ -221,7 +221,7 @@
 // };
 import { sendButtons, sendText, sendList } from "./whatsapp.service.js";
 import { getState, setState, resetState } from "../utils/stateManager.js";
-import { getUserByPhone, createUser, updateUser } from "../services/user.service.js";
+import { getUserByPhone, createCustomer, updateUser } from "../services/user.service.js";
 
 import { createWorkOrder, getProducts, CustomerTest } from "../services/backendApi.js";
 
@@ -318,24 +318,26 @@ export const handleFlow = async (user, input) => {
         return setState(user, { step: "REGISTER_NAME", retries: 0 });
       }
 
-      if (input !== "SI") {
-        const stop = await handleRetry(user, state, "⚠️ Selecciona una opción válida.");
-        if (stop) return;
+      if (input === "SI") {
+        //const stop = await handleRetry(user, state, "⚠️ Selecciona una opción válida.");
+        //if (stop) return;
+        const newCustomer = 'NUEVO USUARIO';
+
         return;
       }
 
-      // ✅ Creamos el usuario en BD
-      const newUser = await createUser({
-        phone: user.phone,
-        name: state.tempName,
-        phoneNumberId: user.phoneNumberId,
-      });
+      // // ✅ Creamos el usuario en BD
+      // const newUser = await createUser({
+      //   phone: user.phone,
+      //   name: state.tempName,
+      //   phoneNumberId: user.phoneNumberId,
+      // });
 
-      user.nombre = newUser.name;
+      // user.nombre = newUser.name;
 
       await sendButtons(
         user,
-        `¡Perfecto, ${newUser.name}! 🎉 Ya estás registrado/a.\n\n¿En qué podemos ayudarte?`,
+        `¡Perfecto, ${state.tempName}! 🎉 Ya estás registrado/a.\n\n¿En qué podemos ayudarte?`,
         [
           { id: "VENTAS", title: "🛒 Ventas y Recargas" },
           { id: "ACCESORIOS", title: "🔧 Accesorios" },
@@ -616,6 +618,23 @@ export const handleFlow = async (user, input) => {
                 }
               : null,
           });
+          if (newCustomer === 'NUEVO USUARIO') {
+            const newUser = await createCustomer({
+              fullname: state.tempName,
+              phoneNumber: user.phone,
+              address: state.address,
+              email: state.invoiceEmail,
+              cedula: state.invoiceCedula,
+              actividad: state.invoiceActividad,
+            });
+            console.log("Nuevo cliente creado en backend:", newUser);
+
+          }
+          // const newUser = await createUser({
+          //   phone: user.phone,
+          //   name: state.tempName,
+          //   phoneNumberId: user.phoneNumberId,
+          // });
 
           await sendText(
             user,
