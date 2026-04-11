@@ -268,7 +268,7 @@ export const handleFlow = async (user, input) => {
     const existingUser = await getUserByPhone(user.phone);
     console.log("Existing user:", existingUser);
 
-    if (existingUser) {
+    if (existingUser.name) {
       // ✅ Usuario encontrado, actualizamos nombre en memoria y arrancamos
       user.nombre = existingUser.name;
       await sendButtons(
