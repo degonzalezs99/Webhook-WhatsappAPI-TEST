@@ -229,7 +229,7 @@ export const handleFlow = async (user, input) => {
   const state = getState(user);
   const isValidOption = (input, validOptions) => validOptions.includes(input);
   
-  const testcostumer = await CustomerTest();
+  const testcostumer = await CustomerTest(user.phone);
   console.log("Customer FROM BACKEND:", testcostumer);
 
 

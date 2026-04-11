@@ -1,3 +1,6 @@
+import { formatPhoneForDB } from "./utils/phone.js";
+
+
 import axios from "axios";
 
 
@@ -73,19 +76,13 @@ export const updateCustomer = async (phone, payload) => {
   return data;
 };
 
-// Actualizar cliente
-// export const CustomerTest = async (phone, payload) => {
-//   //const { data } = await api.patch(`/api/customers/phone/+506 2563-2562`, payload);
-//   const { data } = await api.patch(`https://monterosgas.com/bck/api/customers/by-phone/%2B506%202563-2562`, payload);
-//   return data;
-// };
 
-export const CustomerTest = async () => {
-  const phone = encodeURIComponent("+506 2563-2562");
+export const CustomerTest = async (phone) => {
+  console.log("Phone received for test:", phone);
 
-  const { data } = await api.get(`/api/customers/by-phone/${phone}`);
-
-  console.log("📦 DATA:", data);
+  const phoneFormatted = formatPhoneForDB(phone);
+  console.log("Formatted phone for test:", phoneFormatted);
+  const { data } = await api.get(`/api/customers/by-phone/${phoneFormatted}`);
 
   return data;
 };
