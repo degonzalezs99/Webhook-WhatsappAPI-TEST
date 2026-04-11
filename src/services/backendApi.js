@@ -1,4 +1,4 @@
-import { formatPhoneForDB } from "./utils/phone.js";
+import { formatPhoneForDB } from "../utils/phone.js";
 
 
 import axios from "axios";
