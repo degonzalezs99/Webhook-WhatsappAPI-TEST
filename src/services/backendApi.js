@@ -73,6 +73,7 @@ export const updateCustomer = async (phone, payload) => {
 
 // Actualizar cliente
 export const CustomerTest = async (phone, payload) => {
-  const { data } = await api.patch(`/api/customers/phone/+506 2563-2562`, payload);
+  //const { data } = await api.patch(`/api/customers/phone/+506 2563-2562`, payload);
+  const { data } = await api.patch(`https://monterosgas.com/bck/api/customers/by-phone/%2B506%202563-2562`, payload);
   return data;
 };
