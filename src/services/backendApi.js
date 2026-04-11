@@ -1,15 +1,12 @@
 import axios from "axios";
-import { url } from "inspector";
+
 
 const api = axios.create({
   baseURL: process.env.BACKEND_URL,
-  auth: {
-    token: process.env.BACKEND_API_KEY,
-  },
   headers: {
     "Content-Type": "application/json",
+    "x-api-key": process.env.BACKEND_API_KEY,
   },
-
   timeout: 8000,
 });
 
@@ -50,9 +47,13 @@ export const getWorkOrderById = async (id) => {
 // ─────────────────────────────────────────────
 
 // Buscar cliente por teléfono
+// Buscar cliente por teléfono
 export const getCustomerByPhone = async (phone) => {
   try {
-    const { data } = await api.get(`/api/customers/phone/${phone}`);
+    const encodedPhone = encodeURIComponent(phone);
+
+    const { data } = await api.get(`/api/customers/by-phone/${encodedPhone}`);
+
     return data;
   } catch (error) {
     if (error.response?.status === 404) return null;
@@ -79,18 +80,12 @@ export const updateCustomer = async (phone, payload) => {
 //   return data;
 // };
 
-export const CustomerTest = async ( payload) =>{
-    
-    const phone = encodeURIComponent("+506 2563-2562");
-    url = process.env.BACKEND_URL + `/api/customers/by-phone/${phone}`;
-    const res = await axios.get(process.env.BACKEND_URL, {
-      headers: {
-        "x-api-key": process.env.BACKEND_API_KEY,
-      },
-      timeout: 8000,
-    });
-    console.log("📦 DATA:", res.data);
+export const CustomerTest = async () => {
+  const phone = encodeURIComponent("+506 2563-2562");
 
-    return res.data;
+  const { data } = await api.get(`/api/customers/by-phone/${phone}`);
 
-}
+  console.log("📦 DATA:", data);
+
+  return data;
+};
