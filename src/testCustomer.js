@@ -4,7 +4,7 @@ async function test() {
   try {
     //const API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGVJZCI6MSwiaWF0IjoxNzc1ODY0ODE2LCJleHAiOjE3NzU4NjU3MTZ9.fplAtKHAO7NMWEnywlC4f2ClSK7LOsx1qB8ml8OdTZI"; // ⚠️ usa la misma del .env del backend
     
-    const API_KEY = "mi_super_api_key_123456"; // ⚠️ usa la misma del .env del backend
+    const API_KEY = "SUPER_SECRET_KEY_FOR_INTERNAL_USE_ONLY"; // ⚠️ usa la misma del .env del backend
 
     const phone = encodeURIComponent("+506 2563-2562");
 

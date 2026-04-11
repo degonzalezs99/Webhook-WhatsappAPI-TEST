@@ -230,8 +230,13 @@ export const handleFlow = async (user, input) => {
   const isValidOption = (input, validOptions) => validOptions.includes(input);
   
   
+  //const phoneTest = "50625632562";
+  //const testcostumer = await CustomerTest(phoneTest);
+  //console.log("Customer FROM BACKEND:", testcostumer);
+
+  getUserByPhone
   const phoneTest = "50625632562";
-  const testcostumer = await CustomerTest(phoneTest);
+  const testcostumer = await getUserByPhone(phoneTest);
   console.log("Customer FROM BACKEND:", testcostumer);
 
 
@@ -259,6 +264,7 @@ export const handleFlow = async (user, input) => {
 
   // Si no hay step aún, verificamos si el usuario existe en BD
   if (!state.initialized) {
+    
     const existingUser = await getUserByPhone(user.phone);
     console.log("Existing user:", existingUser);
 
