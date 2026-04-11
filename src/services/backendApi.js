@@ -79,9 +79,9 @@ export const updateCustomer = async (phone, payload) => {
 // };
 
 export const CustomerTest = async (phone, payload) =>{
-    const phone = encodeURIComponent("+506 2563-2562");
+    
     const res = await axios.get(
-  `https://monterosgas.com/bck/api/customers/by-phone/${phone}`,
+  `https://monterosgas.com/bck/api/customers/by-phone/%2B506%202563-2562`,
   {
     headers: {
       "x-api-key": process.env.INTERNAL_API_KEY
