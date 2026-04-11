@@ -1,9 +1,10 @@
 import axios from "axios";
+import { url } from "inspector";
 
 const api = axios.create({
   baseURL: process.env.BACKEND_URL,
   auth: {
-    token: process.env.BACKEND_TOKEN,
+    token: process.env.BACKEND_API_KEY,
   },
   headers: {
     "Content-Type": "application/json",
@@ -78,16 +79,18 @@ export const updateCustomer = async (phone, payload) => {
 //   return data;
 // };
 
-export const CustomerTest = async (phone, payload) =>{
+export const CustomerTest = async ( payload) =>{
     
-    const res = await axios.get(
-  `https://monterosgas.com/bck/api/customers/by-phone/%2B506%202563-2562`,
-  {
-    headers: {
-      "x-api-key": process.env.INTERNAL_API_KEY
-    }
-  }
-);
+    const phone = encodeURIComponent("+506 2563-2562");
+    url = process.env.BACKEND_URL + `/api/customers/by-phone/${phone}`;
+    const res = await axios.get(process.env.BACKEND_URL, {
+      headers: {
+        "x-api-key": process.env.BACKEND_API_KEY,
+      },
+      timeout: 8000,
+    });
+    console.log("📦 DATA:", res.data);
+
     return res.data;
 
 }
