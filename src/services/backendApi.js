@@ -62,7 +62,7 @@ export const getCustomerByPhone = async (phone) => {
 };
 
 // Crear cliente nuevo
-export const createCustomer = async (customerData) => {
+export const createCustomerAPI = async (customerData) => {
   const { data } = await api.post("/api/customers/create-customer", customerData);
   return data;
 };

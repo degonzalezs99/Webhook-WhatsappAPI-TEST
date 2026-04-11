@@ -1,6 +1,6 @@
 import {
   getCustomerByPhone,
-  createCustomer,
+  createCustomerAPI,
   updateCustomer,
 } from "./backendApi.js";
 
@@ -9,7 +9,7 @@ export const getUserByPhone = async (phone) => {
 };
 
 export const createCustomer = async (customerData) => {
-  return await createCustomer(customerData);
+  return await createCustomerAPI(customerData);
 };
 
 export const updateUser = async (phone, payload) => {
