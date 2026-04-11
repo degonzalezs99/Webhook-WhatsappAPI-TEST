@@ -263,7 +263,7 @@ export const handleFlow = async (user, input) => {
   // ─────────────────────────────────────────────
 
   // Si no hay step aún, verificamos si el usuario existe en BD
-  if (!state.initialized) {
+  if (!state?.initialized) {
     
     const existingUser = await getUserByPhone(user.phone);
     console.log("Existing user:", existingUser);
@@ -280,14 +280,14 @@ export const handleFlow = async (user, input) => {
           { id: "SERVICIO_CLIENTE", title: "👨‍💼 Soporte" },
         ]
       );
-      return setState(user, { step: "MENU" ,initialized: true});
+      return setState(user, { ...state, step: "MENU" });
     } else if (existingUser === "Cliente no encontrado") {
       // ❌ Usuario nuevo → pedimos nombre
       await sendText(
         user,
         `👋 ¡Hola! Bienvenido/a a *MonterosGas*. 🔥\nParece que es tu primera vez con nosotros.\n\n¿Cuál es tu nombre?`
       );
-      return setState(user, { step: "REGISTER_NAME",initialized: true });
+      return setState(user, { ...state, step: "REGISTER_NAME",initialized: true });
     }
   }
 
@@ -305,7 +305,7 @@ export const handleFlow = async (user, input) => {
       }
 
       // Guardamos nombre en estado temporalmente
-      setState(user, { step: "REGISTER_CONFIRM_NAME", tempName: input, retries: 0 });
+      setState(user, {...state, step: "REGISTER_CONFIRM_NAME", tempName: input, retries: 0 });
 
       await sendButtons(
         user,
@@ -330,11 +330,11 @@ export const handleFlow = async (user, input) => {
             { id: "SERVICIO_CLIENTE", title: "👨‍💼 Soporte" },
           ]
         );
-        return setState(user, { step: "MENU", retries: 0 });
+        return setState(user, {...state, step: "MENU", retries: 0 });
       
       } else if (input === "NO") {
         await sendText(user, "Sin problema, ¿Cuál es tu nombre?");
-        return setState(user, { step: "REGISTER_NAME", retries: 0 });
+        return setState(user, { ...state, step: "REGISTER_NAME", retries: 0 });
       }
       break;
     }
