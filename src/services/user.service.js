@@ -4,6 +4,7 @@ import {
   updateCustomer,
   createWorkOrderAPI,
   getProductsAPI,
+
 } from "./backendApi.js";
 
 export const getUserByPhone = async (phone) => {
@@ -37,7 +38,9 @@ export const updateUser = async (phone, payload) => {
 export const createWorkorder = async (data) => {
   try {
     // 🔥 1. Traer producto real (NO confiar en frontend)
-    const product = await getProductById(data.productId);
+    const products = await getProducts();
+
+    const product = products.find(p => p.ProductId === data.productId);
 
     if (!product) {
       throw new Error("Producto no encontrado");

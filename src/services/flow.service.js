@@ -5,7 +5,7 @@ import { getUserByPhone, createCustomer, updateUser, createWorkorder, getProduct
 export const handleFlow = async (user, input) => {
   const state = getState(user);
   const isValidOption = (input, validOptions) => validOptions.includes(input);
-  
+  const newCustomer = 'Existe';
   const normalize = (text) => (text || "").trim().toUpperCase();
   input = normalize(input || "");
 
@@ -78,7 +78,7 @@ export const handleFlow = async (user, input) => {
 
     case "REGISTER_CONFIRM_NAME": {
       if (input === "SI") {
-        const newCustomer = 'NUEVO USUARIO';
+        newCustomer = 'NUEVO USUARIO';
         await sendButtons(user,`¡Perfecto, ${state.tempName}! 🎉 Te vamos a registrar.\n\n¿En qué podemos ayudarte?`,
           [
             { id: "VENTAS", title: "🛒 Ventas y Recargas" },
