@@ -2,8 +2,6 @@ import { sendButtons, sendText, sendList } from "./whatsapp.service.js";
 import { getState, setState, resetState } from "../utils/stateManager.js";
 import { getUserByPhone, createCustomer, updateUser, createWorkorder, getProductPrice } from "../services/user.service.js";
  
-import {  getProducts } from "../services/backendApi.js";
-
 export const handleFlow = async (user, input) => {
   const state = getState(user);
   const isValidOption = (input, validOptions) => validOptions.includes(input);
