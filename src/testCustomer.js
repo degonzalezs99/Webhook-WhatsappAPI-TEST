@@ -12,9 +12,11 @@ async function test() {
 
     const url = `https://monterosgas.com/bck/api/customers/by-phone/${phone}`;
 
-    console.log("➡️ URL:", url);
+    const productListUrl = 'https://monterosgas.com/bck/api/products/list-products-whatsapp';
 
-    const res = await axios.get(url, {
+    console.log("➡️ URL:", productListUrl);
+
+    const res = await axios.get(productListUrl, {
       headers: {
         "x-api-key": API_KEY,
       },

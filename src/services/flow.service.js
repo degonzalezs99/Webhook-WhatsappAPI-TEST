@@ -1,245 +1,13 @@
-// import { sendButtons, sendText, sendList } from "./whatsapp.service.js";
-// import { getState, setState, resetState } from "../utils/stateManager.js";
-
-// import { getUserByPhone, createUser, updateUser } from "../services/user.service.js";
-
-
-// export const handleFlow = async (user, input) => {
-//   const state = getState(user);
-//   const nombre = user?.nombre || "";
-//   const isValidOption = (input, validOptions) => { return validOptions.includes(input);};
-  
-//   const normalize = (text) => (text || "").trim().toUpperCase();
-//   input = normalize(input || "");
-//   const MAX_RETRIES = 2;
-//   const handleRetry = async (user, state, message) => {
-   
-//     const retries = state.retries || 0;
-
-//     if (retries >= MAX_RETRIES) {
-//       await sendText(user, "⚠️ Demasiados intentos. Volvamos a empezar.");
-//       resetState(user);
-//       return true; // cortar flujo
-//     }
-
-//     await sendText(user, message);
-
-//     setState(user, { ...state,retries: retries + 1,});
-//     return false; // continuar
-//   };
-
-
-//   console.log("FLOW:", { user,step: state.step,input,state,});
-
-//   switch (state.step) {
-//     case "WELCOME":
-//       await sendButtons(user, "⚡ ¡Hola! Bienvenido/a a MonterosGas. 🔥 \nCuéntanos, ¿En qué podemos ayudarte?👇", [
-//         { id: "VENTAS", title: "🛒 Ventas y Recargas" },
-//         { id: "ACCESORIOS", title: "🔧 Accesorios" },
-//         { id: "SERVICIO_CLIENTE", title: "👨‍💼 Soporte" },
-//       ]);
-//       return setState(user, { step: "MENU" });
-
-//     case "MENU":
-//       if (input === "VENTAS") {
-//         await sendButtons(user, "¿Deseas una Recarga o Envase Nuevo?", [
-//           { id: "RECHARGE", title: "Recarga" },
-//           { id: "CONTAINER", title: "Envase Nuevo" },
-//         ]);
-//         return setState(user, { step: "PRODUCT_TYPE" });
-//       }
-//       else if (input === "ACCESORIOS") {
-//         await sendButtons(user, "¿Que accesorio ocupas?", [
-//           { id: "REGULATOR", title: "Regulador" },
-//           { id: "MANGUERA", title: "Manguera" },
-//           { id: "GAZA", title: "Gaza" },
-//         ]);
-//         //return setState(user, { step: "PRODUCT" });
-//         return setState(user, { ...state,type: "ACCESORIO", product: input, step: "SIZE", retries: 0 });
-//       }
-//       else if (input === "SERVICIO_CLIENTE") {
-//         await sendText(user, "¿Dinos en que podemos ayudarte?");
-        
-//         return setState(user, { step: "SUPPORT" });
-//       }
-//       else{
-//         await sendText(user, "⚠️ Opción no válida. Por favor, selecciona una opción del menú.");
-//       }
-//       break;
-
-//     case "PRODUCT_TYPE":
-//       if (["CONTAINER", "RECHARGE"].includes(input)) {
-//         const isContainer = input === "CONTAINER";
-
-//         await sendList( user,"📦 Selecciona el tamaño","Ver opciones", [
-//             {
-//               title: isContainer ? "Envases" : "Recargas",
-//               rows: isContainer
-//                 ? [
-//                     { id: "CONTAINER_10L", title: "Envase 10L" },
-//                     { id: "CONTAINER_20L", title: "Envase 20L" },
-//                     { id: "CONTAINER_25L", title: "Envase 25L" },
-//                     { id: "CONTAINER_35L", title: "Envase 35L" },
-//                     { id: "CONTAINER_40L", title: "Envase 40L" },
-//                     { id: "CONTAINER_50L", title: "Envase 50L" },
-//                     { id: "CONTAINER_100L", title: "Envase 100L" },
-//                   ]
-//                 : [
-//                     { id: "RECHARGE_10L", title: "GasLP 10L" },
-//                     { id: "RECHARGE_20L", title: "GasLP 20L" },
-//                     { id: "RECHARGE_25L_RO", title: "GasLP 25L Rosca" },
-//                     { id: "RECHARGE_25L_PR", title: "GasLP 25L Presión" },
-//                     { id: "RECHARGE_35L", title: "GasLP 35L" },
-//                     { id: "RECHARGE_40L", title: "GasLP 40L" },
-//                     { id: "RECHARGE_50L", title: "GasLP 50L" },
-//                     { id: "RECHARGE_100L", title: "GasLP 100L" },
-//                   ],
-//             },
-//           ]
-//         );
-//         return setState(user, {...state,type: input,step: "SIZE",});
-//       }
-//       break;
-    
-//     case "SIZE":
-//       if (!input.includes("L") && !["MANGUERA", "GAZA", "REGULADOR"].includes(input) ) {
-//         const stop = await handleRetry(user,state,"⚠️ Selecciona una opción válida de la lista.");
-//         if (stop) return;
-//         return;}
-//       setState(user, { ...state, size: input, step: "QUANTITY",retries: 0 });
-//       await sendButtons(user, "🔢 ¿Cuántos deseas?", [
-//           { id: "1", title: "1" },
-//           { id: "2", title: "2" },
-//           { id: "3", title: "3" },
-//           { id: "4", title: "4" },
-//           { id: "5", title: "5" },
-//           { id: "6", title: "6" },
-//           { id: "7", title: "7" },
-//           { id: "8", title: "8" },
-//           { id: "9", title: "9" },
-//           { id: "10", title: "10" },
-
-//         ]);
-//         break;  
-
-//     case "QUANTITY":
-//       if (!isValidOption(input, ["1", "2", "3","4","5"]) ) {
-//         const stop = await handleRetry(user,state,"⚠️ Selecciona una cantidad válida.");
-//         if (stop) return;
-//         return;
-//       }
-        
-//       setState(user, { ...state, quantity: input, step: "PAYMENT",retries: 0 });
-//       await sendButtons(user, "💳 Método de pago", [
-//           { id: "SINPE", title: "SINPE" },
-//           { id: "EFECTIVO", title: "EFECTIVO" },
-//           { id: "TRANSFERENCIA", title: "TRANSFERENCIA" },
-//         ]);
-//         break;
-
-//     case "PAYMENT":
-//       if (!isValidOption(input, ["SINPE", "EFECTIVO", "TRANSFERENCIA"])) {
-//         const stop = await handleRetry(user,state,"⚠️ Selecciona un método de pago válido.");
-//         if (stop) return;
-//         return;
-//       }
-//       setState(user, { ...state, payment: input, step: "ADDRESS",retries: 0 });
-//       await sendText(user, "📍 Escríbenos tu dirección exacta (incluye referencias):");
-//       break;
-
-//     case "ADDRESS":
-//         const order = { ...state, address: input };
-
-//         const sizeKey = order.size?.split("_")[1]; 
-
-//         // 💰 ejemplo de precios (puedes conectar DB aquí)
-//         const prices = {
-//           "10L": 5000,
-//           "20L": 9000,
-//           "25L": 12000,
-//         };
-
-//         const price = prices[sizeKey] || 0;
-//         const total = price * (order.quantity || 1);
-
-//         const formatCRC = (n) =>
-//           new Intl.NumberFormat("es-CR", {style: "currency",currency: "CRC",}).format(n);
-//         const typeLabel = {
-//           CONTAINER: "Envase",
-//           RECHARGE: "Recarga",
-//           ACCESORIO: "Accesorio",
-//         };
-//         const sizeLabel = order.size
-//           ? order.size.replace("CONTAINER_", "").replace("RECHARGE_", "").replace("_", " ")
-//           : order.product;
-
-//         await sendText(
-//           user,
-//           `🧾 *Resumen de tu pedido:*\n\n` +
-//             `📦 Producto: ${typeLabel[order.type] || order.type} ${sizeLabel}\n` +
-//             `🔢 Cantidad: ${order.quantity}\n` +
-//             `💰 Total: ${formatCRC(total)}\n` +
-//             `📍 Dirección: ${order.address}\n` +
-//             `💳 Pago: ${order.payment}\n` +
-//             `Tu nombre: ${nombre}\n` 
-            
-//         );
-//         await sendText(user, '⏱️ Tu pedido será procesado inmediatamente al confirmar.');
-
-//         await sendButtons(user, "¿Deseas confirmar?", [
-//           { id: "CONFIRM", title: "✅ Confirmar" },
-//           { id: "CANCEL", title: "❌ Cancelar" },
-//         ]);
-
-//         return setState(user, { ...order, step: "CONFIRM", retries: 0 });
-
-//     case "CONFIRM":
-//       if (!isValidOption(input, ["CONFIRM", "CANCEL"])) {
-//         const stop = await handleRetry(user,state,"⚠️ Selecciona una opción válida.");
-//         if (stop) return;
-//         return;
-//       }    
-//       if (input === "CONFIRM") {
-//           await sendText(user, "🎉 Orden creada correctamente #1234",);
-//         } else {
-//           await sendText(user, "❌ Pedido cancelado");
-//         }
-//         return resetState(user);
-
-//     case "SUPPORT":
-//         await sendText(user, "📞 Un agente te contactará pronto.");
-//         return resetState(user);
-
-//     default:
-//       await sendText(
-//         user,
-//         "⚠️ No entendí tu respuesta. Por favor selecciona una opción del menú."
-//       );
-//       return;
-
-//   }
-// };
 import { sendButtons, sendText, sendList } from "./whatsapp.service.js";
 import { getState, setState, resetState } from "../utils/stateManager.js";
-import { getUserByPhone, createCustomer, updateUser } from "../services/user.service.js";
-
-import { createWorkOrder, getProducts, CustomerTest } from "../services/backendApi.js";
+import { getUserByPhone, createCustomer, updateUser, createWorkorder, getProductPrice } from "../services/user.service.js";
+ 
+import {  getProducts } from "../services/backendApi.js";
 
 export const handleFlow = async (user, input) => {
   const state = getState(user);
   const isValidOption = (input, validOptions) => validOptions.includes(input);
   
-  
-  //const phoneTest = "50625632562";
-  //const testcostumer = await CustomerTest(phoneTest);
-  //console.log("Customer FROM BACKEND:", testcostumer);
-
-  getUserByPhone
-  const phoneTest = "50625632562";
-  const testcostumer = await getUserByPhone(phoneTest);
-  console.log("Customer FROM BACKEND:", testcostumer);
-
-
   const normalize = (text) => (text || "").trim().toUpperCase();
   input = normalize(input || "");
 
@@ -271,9 +39,7 @@ export const handleFlow = async (user, input) => {
     if (existingUser.name) {
       // ✅ Usuario encontrado, actualizamos nombre en memoria y arrancamos
       user.nombre = existingUser.name;
-      await sendButtons(
-        user,
-        `⚡ ¡Hola ${existingUser.name}! Bienvenido/a de nuevo a MonterosGas. 🔥\n¿En qué podemos ayudarte?`,
+      await sendButtons(user, `⚡ ¡Hola ${existingUser.name}! Bienvenido/a de nuevo a MonterosGas. 🔥\n¿En qué podemos ayudarte?`,
         [
           { id: "VENTAS", title: "🛒 Ventas y Recargas" },
           { id: "ACCESORIOS", title: "🔧 Accesorios" },
@@ -281,13 +47,11 @@ export const handleFlow = async (user, input) => {
         ]
       );
       return setState(user, { ...state, step: "MENU" });
+
     } else if (existingUser === "Cliente no encontrado") {
       // ❌ Usuario nuevo → pedimos nombre
-      await sendText(
-        user,
-        `👋 ¡Hola! Bienvenido/a a *MonterosGas*. 🔥\nParece que es tu primera vez con nosotros.\n\n¿Cuál es tu nombre?`
-      );
-      return setState(user, { ...state, step: "REGISTER_NAME",initialized: true });
+      await sendText(user, `👋 ¡Hola! Bienvenido/a a *MonterosGas*. 🔥\nParece que es tu primera vez con nosotros.\n\n¿Cuál es tu nombre?`);
+      return setState(user, { ...state, step: "REGISTER_NAME", initialized: true });
     }
   }
 
@@ -303,27 +67,21 @@ export const handleFlow = async (user, input) => {
         if (stop) return;
         return;
       }
-
       // Guardamos nombre en estado temporalmente
       setState(user, {...state, step: "REGISTER_CONFIRM_NAME", tempName: input, retries: 0 });
 
-      await sendButtons(
-        user,
-        `¿Tu nombre es *${input}*?`,
+      await sendButtons(user, `¿Tu nombre es *${input}*?`,
         [
           { id: "SI", title: "✅ Sí, correcto" },
           { id: "NO", title: "✏️ Corregir" },
-        ]
-      );
+        ]);
       break;
     }
 
     case "REGISTER_CONFIRM_NAME": {
       if (input === "SI") {
-        
         const newCustomer = 'NUEVO USUARIO';
-
-        await sendButtons(user,`¡Perfecto, ${state.tempName}! 🎉 Ya estás registrado/a.\n\n¿En qué podemos ayudarte?`,
+        await sendButtons(user,`¡Perfecto, ${state.tempName}! 🎉 Te vamos a registrar.\n\n¿En qué podemos ayudarte?`,
           [
             { id: "VENTAS", title: "🛒 Ventas y Recargas" },
             { id: "ACCESORIOS", title: "🔧 Accesorios" },
@@ -356,8 +114,7 @@ export const handleFlow = async (user, input) => {
       return setState(user, { step: "MENU" });
 
     case "MENU": {
-      const nombre = state.tempName || user?.nombre || "";
-
+      //const nombre = state.tempName || user?.nombre || "";
       if (input === "VENTAS") {
         await sendButtons(user, "¿Deseas una Recarga o Envase Nuevo?", [
           { id: "RECHARGE", title: "Recarga" },
@@ -383,10 +140,7 @@ export const handleFlow = async (user, input) => {
     case "PRODUCT_TYPE": {
       if (["CONTAINER", "RECHARGE"].includes(input)) {
         const isContainer = input === "CONTAINER";
-        await sendList(
-          user,
-          "📦 Selecciona el tamaño",
-          "Ver opciones",
+        await sendList( user, "📦 Selecciona el tamaño","Ver opciones",
           [
             {
               title: isContainer ? "Envases" : "Recargas",
@@ -445,9 +199,6 @@ export const handleFlow = async (user, input) => {
       break;
     }
 
- 
-
-
     case "QUANTITY": {
       if (!isValidOption(input, ["1", "2", "3", "4", "5","6","7"])) {
         const stop = await handleRetry(user, state, "⚠️ Selecciona una cantidad válida.");
@@ -470,7 +221,7 @@ export const handleFlow = async (user, input) => {
         return;
       }
       setState(user, { ...state, payment: input, step: "ADDRESS", retries: 0 });
-      await sendText(user, "📍 Escríbenos tu dirección exacta (incluye referencias):");
+      await sendText(user, "📍 Escríbenos tu dirección exacta:");
       break;
     }
 
@@ -517,7 +268,7 @@ export const handleFlow = async (user, input) => {
       }
 
       setState(user, { ...state, invoiceEmail: input.toLowerCase(), step: "INVOICE_ACTIVIDAD", retries: 0 });
-      await sendText(user, "🏢 ¿Cuál es tu actividad económica? (Ej: Comercio, Servicios, Construcción...)");
+      await sendText(user, "🏢 ¿Cuál es tu actividad económica?");
       break;
     }
 
@@ -527,7 +278,6 @@ export const handleFlow = async (user, input) => {
         if (stop) return;
         return;
       }
-
       setState(user, { ...state, invoiceActividad: input, step: "INVOICE_CEDULA", retries: 0 });
       await sendText(user, "🪪 Ingresa tu número de cédula o identificación:");
       break;
@@ -541,15 +291,16 @@ export const handleFlow = async (user, input) => {
         if (stop) return;
         return;
       }
-
       const updatedState = { ...state, invoiceCedula: input, retries: 0 };
 
-      // ✅ Guardamos datos de factura en BD para futuros pedidos
-      await updateUser(user.phone, {
-        invoiceEmail: updatedState.invoiceEmail,
-        invoiceActividad: updatedState.invoiceActividad,
-        invoiceCedula: input,
-      });
+      // ✅ Guardamos datos de factura en BD para futuros pedidos, si el usuario ya existía. Si es nuevo, se guardarán junto con la creación del cliente en el paso de confirmación final.
+      if (newCustomer !== 'NUEVO USUARIO') {
+        await updateUser(user.phone, {
+          invoiceEmail: updatedState.invoiceEmail,
+          invoiceActividad: updatedState.invoiceActividad,
+          invoiceCedula: input,
+          });
+      }
 
       await sendText(user, "✅ Datos de facturación guardados correctamente.");
       return await buildSummaryAndConfirm(user, updatedState, updatedState.address);
@@ -593,41 +344,60 @@ export const handleFlow = async (user, input) => {
 
       if (input === "CONFIRM") {
         try {
-          const newOrder = await createWorkOrder({
-            customerPhone: user.phone,
-            customerName: user.nombre,
-            productId: state.productId,
-            type: state.type,
-            size: state.size,
-            quantity: parseInt(state.quantity),
-            paymentMethod: state.payment,
-            address: state.address,
-            invoice: state.invoice
-              ? {
-                  email: state.invoiceEmail,
-                  actividad: state.invoiceActividad,
-                  cedula: state.invoiceCedula,
-                }
-              : null,
-          });
           if (newCustomer === 'NUEVO USUARIO') {
             const newUser = await createCustomer({
-              fullname: state.tempName,
-              phoneNumber: user.phone,
-              address: state.address,
-              email: state.invoiceEmail,
-              cedula: state.invoiceCedula,
-              actividad: state.invoiceActividad,
+                FullName: state.tempName,
+                PhoneNumber: formatPhoneForDB(user.phone), 
+                Address: state.address,
+                Place: 1, // ⚠️ define esto (ej: Heredia = 1)
+                EmailJuridical: state.invoiceEmail,
+                JuridicalId: state.invoiceCedula,
+                EconomicActivity: state.invoiceActividad,
+                Active: true,
+           
             });
             console.log("Nuevo cliente creado en backend:", newUser);
+            } 
+          // 1. Buscar cliente
+          const customer = await getUserByPhone(user.phone);
 
+          if (!customer || customer === "Cliente no encontrado") {
+            throw new Error("Cliente no existe, no se puede crear orden");
           }
-          // const newUser = await createUser({
-          //   phone: user.phone,
-          //   name: state.tempName,
-          //   phoneNumberId: user.phoneNumberId,
-          // });
+          // 2. Obtener ID
+          const customerId = customer.CustomerId;
+          // 3. Calcular total con producto real (NO confiar en frontend)
+          const precioProducto = Number(await getProductPrice(state.productId));
+          const totalCalculado = precioProducto * parseInt(state.quantity);
 
+          // 3. Crear orden con ID de cliente-Payload 
+          const orderPayload = {
+              WorkorderType: state.type || "VENTA",
+              Status: "En Proceso",
+              Costumer: customerId, 
+              WhatsappMessageId: user.messageId,
+              WhatsappId: user.phoneNumberId,
+              Place: 1, // o dinámico si luego lo manejas
+              Address: state.address,
+              PhoneNumber: formatPhoneForDB(user.phone),
+              BillType: state.invoice ? "FACTURA" : "TICKET",
+              PaymentMethod: state.payment,
+              PayType: "CONTADO",
+              TotalAmount: totalCalculado, // 🔥 lo calculas con productos
+              RequestAt: new Date(),
+              DeliveryAt: new Date(),
+              Active: true,
+              Items: [
+                {
+                  ProductId: state.productId,
+                  Quantity: parseInt(state.quantity),
+                  UnitPrice: precioProducto, // lo sacas del API de productos
+                },
+              ],
+            };
+
+          const newOrder = await createWorkorder({...orderPayload     });
+        
           await sendText(
             user,
             `🎉 ¡Orden creada! Tu número de pedido es *#${newOrder.id || newOrder._id || newOrder.orderId}*.`
@@ -663,11 +433,6 @@ export const handleFlow = async (user, input) => {
 // 🧾 Helper: construye resumen y pide confirmación
 // ─────────────────────────────────────────────
 const buildSummaryAndConfirm = async (user, order, address) => {
-  //const prices = { "10L": 5000, "20L": 9000, "25L": 12000 };
-  //const sizeKey = order.size?.split("_")[1];
-  //const price = prices[sizeKey] || 0;
-  //const total = price * (order.quantity || 1);
-
   let price = 0;
   let productId = null;
 

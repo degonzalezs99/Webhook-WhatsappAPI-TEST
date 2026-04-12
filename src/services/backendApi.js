@@ -20,8 +20,8 @@ const api = axios.create({
 // ─────────────────────────────────────────────
 
 // Obtener todos los productos
-export const getProducts = async () => {
-  const { data } = await api.get("/api/products");
+export const getProductsAPI = async () => {
+  const { data } = await api.get("/api/products/list-products-whatsapp");
   return data;
 };
 
@@ -36,14 +36,8 @@ export const getProductById = async (id) => {
 // ─────────────────────────────────────────────
 
 // Crear orden
-export const createWorkOrder = async (orderPayload) => {
+export const createWorkOrderAPI = async (orderPayload) => {
   const { data } = await api.post("/api/workorders", orderPayload);
-  return data;
-};
-
-// Obtener orden por ID
-export const getWorkOrderById = async (id) => {
-  const { data } = await api.get(`/api/workorders/${id}`);
   return data;
 };
 
@@ -74,8 +68,27 @@ export const createCustomerAPI = async (customerData) => {
 
 // Actualizar cliente
 export const updateCustomer = async (phone, payload) => {
-  const { data } = await api.patch(`/api/customers/phone/${phone}`, payload);
-  return data;
+  try {
+    // 1. Buscar cliente
+    const customer = await getCustomerByPhone(phone);
+
+    if (!customer || customer === "Cliente no encontrado") {
+      throw new Error("No se puede actualizar: cliente no existe");
+    }
+
+    const customerId = customer.CustomerId;
+
+    // 2. Actualizar usando ID
+    const { data } = await api.put(`/api/customers/update-customer/${customerId}`,
+      payload
+    );
+
+    return data;
+
+  } catch (error) {
+    console.error("❌ Error updating customer:", error.message);
+    throw error;
+  }
 };
 
 
