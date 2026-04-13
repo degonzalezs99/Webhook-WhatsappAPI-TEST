@@ -1,6 +1,8 @@
 import { sendButtons, sendText, sendList } from "./whatsapp.service.js";
 import { getState, setState, resetState } from "../utils/stateManager.js";
 import { getUserByPhone, createCustomer, updateUser, createWorkorder, getProductPrice } from "../services/user.service.js";
+import { formatPhoneForDB } from "../utils/phone.js";
+
  
 export const handleFlow = async (user, input) => {
   const state = getState(user);
@@ -343,8 +345,9 @@ export const handleFlow = async (user, input) => {
 
       if (input === "CONFIRM") {
         try {
-         if (state.isNewCustomer){
-            const newUser = await createCustomer({
+          console.log("Es cliente Nuevo:", state.isNewCustomer);
+          if (state.isNewCustomer){
+            await createCustomer({
                 FullName: state.tempName,
                 PhoneNumber: formatPhoneForDB(user.phone), 
                 Address: state.address,
@@ -353,10 +356,8 @@ export const handleFlow = async (user, input) => {
                 JuridicalId: state.invoiceCedula,
                 EconomicActivity: state.invoiceActividad,
                 Active: true,
-           
             });
-            console.log("Nuevo cliente creado en backend:", newUser);
-            } 
+          } 
           // 1. Buscar cliente
           const customer = await getUserByPhone(user.phone);
 

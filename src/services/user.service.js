@@ -19,6 +19,7 @@ export const getProducts = async () => {
 export const createCustomer = async (customerData) => {
   try {
     return await createCustomerAPI(customerData);
+    
   } catch (error) {
     console.error("❌ Error creando cliente:", error.response?.data || error.message);
     throw error;
