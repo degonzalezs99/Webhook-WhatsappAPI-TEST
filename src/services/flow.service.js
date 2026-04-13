@@ -1,7 +1,8 @@
 import { sendButtons, sendText, sendList } from "./whatsapp.service.js";
 import { getState, setState, resetState } from "../utils/stateManager.js";
-import { getUserByPhone, createCustomer, updateUser, createWorkorder, getProductPrice } from "../services/user.service.js";
+import { getUserByPhone, createCustomer, updateUser, createWorkorder, getProductPrice, getIDPlace } from "../services/user.service.js";
 import { formatPhoneForDB } from "../utils/phone.js";
+import { create } from "domain";
 
  
 export const handleFlow = async (user, input) => {
@@ -120,7 +121,7 @@ export const handleFlow = async (user, input) => {
           { id: "RECHARGE", title: "Recarga" },
           { id: "CONTAINER", title: "Envase Nuevo" },
         ]);
-        return setState(user, { step: "PRODUCT_TYPE" });
+        return setState(user, {...state, step: "PRODUCT_TYPE" });
       } else if (input === "ACCESORIOS") {
         await sendButtons(user, "¿Qué accesorio ocupas?", [
           { id: "REGULATOR", title: "Regulador" },
@@ -130,7 +131,7 @@ export const handleFlow = async (user, input) => {
         return setState(user, { ...state, type: "ACCESORIO", product: input, step: "SIZE", retries: 0 });
       } else if (input === "SERVICIO_CLIENTE") {
         await sendText(user, "¿Dinos en qué podemos ayudarte?");
-        return setState(user, { step: "SUPPORT" });
+        return setState(user, {...state, step: "SUPPORT" });
       } else {
         await sendText(user, "⚠️ Opción no válida. Por favor, selecciona una opción del menú.");
       }
@@ -148,7 +149,7 @@ export const handleFlow = async (user, input) => {
                 ? [
                     { id: "CONTAINER_10L", title: "Envase 10L" },
                     { id: "CONTAINER_20L", title: "Envase 20L" },
-                    { id: "CONTAINER_25L", title: "Envase 25L" },
+                    { id: "CONTAINER_25L", title: "Envase 25L Llave" },
                     { id: "CONTAINER_35L", title: "Envase 35L" },
                     { id: "CONTAINER_40L", title: "Envase 40L" },
                     { id: "CONTAINER_50L", title: "Envase 50L" },
@@ -220,7 +221,99 @@ export const handleFlow = async (user, input) => {
         if (stop) return;
         return;
       }
-      setState(user, { ...state, payment: input, step: "ADDRESS", retries: 0 });
+      setState(user, { ...state, payment: input, step: "CITY", retries: 0 });
+      //await sendText(user, "📍 Escríbenos tu dirección exacta:");
+      break;
+    }
+
+    case "CITY": {
+      if (!isValidOption(input, ["SINPE", "EFECTIVO", "TRANSFERENCIA"])) {
+        const stop = await handleRetry(user, state, "⚠️ Selecciona un método de pago válido.");
+        if (stop) return;
+        return;
+      }
+      setState(user, { ...state, payment: input, step: "CITY_DETAIL", retries: 0 });
+      await sendButtons(user, `📍 Dinos de donde eres:`,
+        [
+          { id: "NARANJO", title: "📍 NARANJO" },
+          { id: "PALMARES", title: "📍 PALMARES" },
+          { id: "OTHER_CITY", title: "📍 OTROS CANTONES" },
+        ]
+      );
+      break;
+    }
+
+    case "CITY_DETAIL": {
+      if (input === "NARANJO") {
+        await sendList(user, "📍 Escoge una opcion de Naranjo:","Ver opciones",
+          [
+            {
+              title: "Naranjo",
+              rows: [
+                { id: "Cirri", title: "Cirri" },
+                { id: "Llano Bonito", title: "Llano Bonito" },
+                { id: "Muro", title: "Muro" },
+                { id: "Naranjo Centro", title: "Naranjo Centro" },
+                { id: "Palmitos", title: "Palmitos" },
+                { id: "Rosario", title: "Rosario" },
+                { id: "San Jerónimo", title: "San Jerónimo" },
+                { id: "San Juan", title: "San Juan" },
+                { id: "San Juanillo", title: "San Juanillo" },
+                { id: "San Miguel", title: "San Miguel" },
+              ]
+            }
+          ]
+        );
+        return setState(user, {...state, step: "CITY_ADDRESS" });
+      }
+      else if (input === "PALMARES") {
+        await sendList(user, "📍 Escoge una opcion de Palmares:","Ver opciones",
+          [
+            {
+              title: "Palmares",
+              rows: [
+                { id: "Bajo de la Plaza", title: "Bajo de la Plaza" },
+                { id: "Candelaria", title: "Candelaria" },
+                { id: "Cañuela", title: "Cañuela" },
+                { id: "Concepción", title: "Concepción" },
+                { id: "Dulce Nombre", title: "Dulce Nombre" },
+                { id: "Lourdes", title: "Lourdes" },
+                { id: "Palmares", title: "Palmares" },
+                { id: "San Antonio", title: "San Antonio" },
+                { id: "San Roque", title: "San Roque" },
+                { id: "Tres Marías", title: "Tres Marías" },
+              ]
+            }
+          ]
+        );
+        return setState(user, {...state, step: "CITY_ADDRESS" });
+        
+      } 
+      else if (input === "OTHER_CITY") {
+       await sendList(user, "📍 Escoge otro Cantón:","Ver opciones",
+          [
+            {
+              title: "Otro Cantón",
+              rows: [
+                { id: "Grecia ", title: "Grecia" },
+                { id: "San Rafael", title: "San Rafael" },
+                { id: "San Ramón", title: "San Ramón" },
+                { id: "Sarchí", title: "Sarchí (Valverde Vega)" },
+                { id: "Robles", title: "Robles" },
+                { id: "Lourdes", title: "Lourdes" },
+                { id: "Otro", title: "Otro Cantón" },
+              ]
+            }
+          ]
+        );
+        return setState(user, {...state, step: "CITY_ADDRESS" });
+      } else {
+        await sendText(user, "⚠️ Opción no válida. Por favor, selecciona una opción del menú.");
+      }
+    }
+
+    case "CITY_ADDRESS": {
+      setState(user, { ...state, city: input, step: "ADDRESS", retries: 0 });
       await sendText(user, "📍 Escríbenos tu dirección exacta:");
       break;
     }
@@ -307,35 +400,6 @@ export const handleFlow = async (user, input) => {
       return await buildSummaryAndConfirm(user, updatedState, updatedState.address);
     }
 
-    // ─────────────────────────────────────────────
-    // ✅ CONFIRMACIÓN FINAL
-    // ─────────────────────────────────────────────
-
-    // case "CONFIRM": {
-    //   if (!isValidOption(input, ["CONFIRM", "CANCEL"])) {
-    //     const stop = await handleRetry(user, state, "⚠️ Selecciona una opción válida.");
-    //     if (stop) return;
-    //     return;
-    //   }
-
-    //   if (input === "CONFIRM") {
-    //     await sendText(user, "🎉 ¡Orden creada correctamente! Tu número de pedido es *#1234*.");
-
-    //     if (state.invoice) {
-    //       await sendText(
-    //         user,
-    //         `🧾 *Datos de tu factura electrónica:*\n\n` +
-    //         `📧 Email: ${state.invoiceEmail}\n` +
-    //         `🏢 Actividad: ${state.invoiceActividad}\n` +
-    //         `🪪 Cédula: ${state.invoiceCedula}`
-    //       );
-    //     }
-    //   } else {
-    //     await sendText(user, "❌ Pedido cancelado. ¡Cuando gustes vuelve!");
-    //   }
-
-    //   return resetState(user);
-    // }
     case "CONFIRM": {
       if (!isValidOption(input, ["CONFIRM", "CANCEL"])) {
         const stop = await handleRetry(user, state, "⚠️ Selecciona una opción válida.");
@@ -351,10 +415,12 @@ export const handleFlow = async (user, input) => {
                 FullName: state.tempName,
                 PhoneNumber: formatPhoneForDB(user.phone), 
                 Address: state.address,
-                Place: 1, // ⚠️ define esto (ej: Heredia = 1)
+                PlaceId: await getIDPlace(state.city), 
                 EmailJuridical: state.invoiceEmail,
                 JuridicalId: state.invoiceCedula,
                 EconomicActivity: state.invoiceActividad,
+                Createdby: 1,
+                CreatedAt: new Date(),
                 Active: true,
             });
           } 
@@ -372,21 +438,22 @@ export const handleFlow = async (user, input) => {
 
           // 3. Crear orden con ID de cliente-Payload 
           const orderPayload = {
-              WorkorderType: state.type || "VENTA",
+              WorkorderType: "productos",
               Status: "En Proceso",
-              Costumer: customerId, 
+              Costumer: state.tempName, 
               WhatsappMessageId: user.messageId,
               WhatsappId: user.phoneNumberId,
-              Place: 1, // o dinámico si luego lo manejas
+              PlaceId: await getIDPlace(state.city),
               Address: state.address,
               PhoneNumber: formatPhoneForDB(user.phone),
-              BillType: state.invoice ? "FACTURA" : "TICKET",
+              BillType: state.invoice ? "factura" : "tiquete",
               PaymentMethod: state.payment,
-              PayType: "CONTADO",
+              PayType: "contado",
               TotalAmount: totalCalculado, // 🔥 lo calculas con productos
               RequestAt: new Date(),
               DeliveryAt: new Date(),
               Active: true,
+              CustomerID: customerId,
               Items: [
                 {
                   ProductId: state.productId,

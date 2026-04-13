@@ -4,18 +4,19 @@ import {
   updateCustomer,
   createWorkOrderAPI,
   getProductsAPI,
+  getPlaceIDAPI,
 
 } from "./backendApi.js";
 
+// ─────────────────────────────────────────────
+// CUSTOMER
+// ─────────────────────────────────────────────
+
+// Buscar cliente por teléfono
 export const getUserByPhone = async (phone) => {
   return await getCustomerByPhone(phone);
 };
-
-export const getProducts = async () => {
-  return await getProductsAPI();
-};
-
-
+// Crear cliente nuevo
 export const createCustomer = async (customerData) => {
   try {
     return await createCustomerAPI(customerData);
@@ -25,7 +26,7 @@ export const createCustomer = async (customerData) => {
     throw error;
   }
 };
-
+// Actualizar cliente
 export const updateUser = async (phone, payload) => {
   try {
     return await updateCustomer(phone, payload);
@@ -35,7 +36,52 @@ export const updateUser = async (phone, payload) => {
   }
 };
 
+// ─────────────────────────────────────────────
+// PRODUCTS
+// ─────────────────────────────────────────────
 
+// Obtener lista de productos
+export const getProducts = async () => {
+  return await getProductsAPI();
+};
+// Obtener precio de producto por ID
+export const getProductPrice = async (productId) => {
+  const products = await getProducts();
+
+  const product = products.find(p => p.ProductId === productId);
+
+  if (!product) {
+    throw new Error(`❌ Producto ${productId} no encontrado`);
+  }
+
+  const price = Number(product.Price || product.UnitPrice || 0);
+
+  if (!price) {
+    throw new Error(`❌ Producto ${productId} no tiene precio`);
+  }
+
+  return price;
+};
+
+// ─────────────────────────────────────────────
+// PLACES
+// ─────────────────────────────────────────────
+
+// Obtener ID de lugar por nombre
+export const getIDPlace = async (place) => {
+  try {
+    return await getPlaceIDAPI(place);
+  } catch (error) {
+    console.error("❌ Error obteniendo ID de lugar:", error.response?.data || error.message);
+    throw error;
+  }
+};
+
+// ─────────────────────────────────────────────
+// WORKORDERS
+// ─────────────────────────────────────────────
+
+// Crear orden de trabajo
 export const createWorkorder = async (data) => {
   try {
     // 🔥 1. Traer producto real (NO confiar en frontend)
@@ -97,20 +143,3 @@ export const createWorkorder = async (data) => {
   }
 };
 
-export const getProductPrice = async (productId) => {
-  const products = await getProducts();
-
-  const product = products.find(p => p.ProductId === productId);
-
-  if (!product) {
-    throw new Error(`❌ Producto ${productId} no encontrado`);
-  }
-
-  const price = Number(product.Price || product.UnitPrice || 0);
-
-  if (!price) {
-    throw new Error(`❌ Producto ${productId} no tiene precio`);
-  }
-
-  return price;
-};

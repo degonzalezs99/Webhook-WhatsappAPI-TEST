@@ -42,6 +42,16 @@ export const createWorkOrderAPI = async (orderPayload) => {
 };
 
 // ─────────────────────────────────────────────
+// 📋 Lugares
+// ─────────────────────────────────────────────
+
+export const getPlaceIDAPI = async (place) => {
+  const { data } = await api.get(`/api/places/placeID-whatsapp/${place}`);
+  return data;
+};
+
+
+// ─────────────────────────────────────────────
 // 👤 CUSTOMERS
 // ─────────────────────────────────────────────
 
@@ -66,6 +76,8 @@ export const createCustomerAPI = async (customerData) => {
   console.log("Nuevo cliente creado en backend:", data);
   return data;
 };
+
+
 
 // Actualizar cliente
 export const updateCustomer = async (phone, payload) => {
