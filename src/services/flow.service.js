@@ -221,19 +221,19 @@ export const handleFlow = async (user, input) => {
         if (stop) return;
         return;
       }
-      setState(user, { ...state, payment: input, step: "CITY", retries: 0 });
+/*       setState(user, { ...state, payment: input, step: "CITY", retries: 0 });
       await sendText(user, "📍 Dinos de donde eres:");
       break;
     }
 
     case "CITY": {
-      if (!isValidOption(input, ["NARANJO", "PALMARES", "OTHER_CITY"])) {
+      if (!isValidOption(input, ["SINPE", "EFECTIVO", "TRANSFERENCIA"])) {
         const stop = await handleRetry(user, state, "⚠️ Selecciona un método de pago válido.");
         if (stop) return;
         return;
-      }
+      } */
       setState(user, { ...state, payment: input, step: "CITY_DETAIL", retries: 0 });
-      await sendButtons(user, ``,
+      await sendButtons(user, `📍 Dinos de donde eres:`,
         [
           { id: "NARANJO", title: "📍 NARANJO" },
           { id: "PALMARES", title: "📍 PALMARES" },
