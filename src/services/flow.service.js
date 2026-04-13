@@ -5,7 +5,7 @@ import { getUserByPhone, createCustomer, updateUser, createWorkorder, getProduct
 export const handleFlow = async (user, input) => {
   const state = getState(user);
   const isValidOption = (input, validOptions) => validOptions.includes(input);
-  const newCustomer = 'Existe';
+  let newCustomer = 'Existe';
   const normalize = (text) => (text || "").trim().toUpperCase();
   input = normalize(input || "");
 
