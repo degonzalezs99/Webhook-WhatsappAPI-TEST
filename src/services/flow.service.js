@@ -5,7 +5,7 @@ import { getUserByPhone, createCustomer, updateUser, createWorkorder, getProduct
 export const handleFlow = async (user, input) => {
   const state = getState(user);
   const isValidOption = (input, validOptions) => validOptions.includes(input);
-  let newCustomer = 'Existe';
+  // let newCustomer = 'Existe';
   const normalize = (text) => (text || "").trim().toUpperCase();
   input = normalize(input || "");
 
@@ -44,7 +44,7 @@ export const handleFlow = async (user, input) => {
           { id: "SERVICIO_CLIENTE", title: "👨‍💼 Soporte" },
         ]
       );
-      return setState(user, { ...state, step: "MENU" });
+      return setState(user, { ...state, step: "MENU", isNewCustomer: false,});
 
     } else if (existingUser === "Cliente no encontrado") {
       // ❌ Usuario nuevo → pedimos nombre
@@ -78,7 +78,7 @@ export const handleFlow = async (user, input) => {
 
     case "REGISTER_CONFIRM_NAME": {
       if (input === "SI") {
-        newCustomer = 'NUEVO USUARIO';
+        //newCustomer = 'NUEVO USUARIO';
         await sendButtons(user,`¡Perfecto, ${state.tempName}! 🎉 Te vamos a registrar.\n\n¿En qué podemos ayudarte?`,
           [
             { id: "VENTAS", title: "🛒 Ventas y Recargas" },
@@ -86,7 +86,7 @@ export const handleFlow = async (user, input) => {
             { id: "SERVICIO_CLIENTE", title: "👨‍💼 Soporte" },
           ]
         );
-        return setState(user, {...state, step: "MENU", retries: 0 });
+        return setState(user, {...state, step: "MENU", isNewCustomer: true, retries: 0 });
       
       } else if (input === "NO") {
         await sendText(user, "Sin problema, ¿Cuál es tu nombre?");
@@ -292,7 +292,8 @@ export const handleFlow = async (user, input) => {
       const updatedState = { ...state, invoiceCedula: input, retries: 0 };
 
       // ✅ Guardamos datos de factura en BD para futuros pedidos, si el usuario ya existía. Si es nuevo, se guardarán junto con la creación del cliente en el paso de confirmación final.
-      if (newCustomer !== 'NUEVO USUARIO') {
+      //if (newCustomer !== 'NUEVO USUARIO') {
+      if (!state.isNewCustomer) {
         await updateUser(user.phone, {
           invoiceEmail: updatedState.invoiceEmail,
           invoiceActividad: updatedState.invoiceActividad,
@@ -342,7 +343,7 @@ export const handleFlow = async (user, input) => {
 
       if (input === "CONFIRM") {
         try {
-          if (newCustomer === 'NUEVO USUARIO') {
+         if (state.isNewCustomer){
             const newUser = await createCustomer({
                 FullName: state.tempName,
                 PhoneNumber: formatPhoneForDB(user.phone), 
