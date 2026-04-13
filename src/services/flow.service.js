@@ -47,7 +47,7 @@ export const handleFlow = async (user, input) => {
           { id: "SERVICIO_CLIENTE", title: "👨‍💼 Soporte" },
         ]
       );
-      return setState(user, { ...state, step: "MENU", initialized: true, isNewCustomer: false,});
+      return setState(user, { ...state, step: "MENU", initialized: true, FullName: existingUser.FullName, isNewCustomer: false,});
 
     } else if (existingUser === "Cliente no encontrado") {
       // ❌ Usuario nuevo → pedimos nombre
@@ -216,13 +216,13 @@ export const handleFlow = async (user, input) => {
     }
 
     case "PAYMENT": {
-      if (!isValidOption(input, ["SINPE", "EFECTIVO", "TRANSFERENCIA"])) {
+      if (!isValidOption(input, [ "SINPE", "EFECTIVO", "TRANSFERENCIA"])) {
         const stop = await handleRetry(user, state, "⚠️ Selecciona un método de pago válido.");
         if (stop) return;
         return;
       }
       setState(user, { ...state, payment: input, step: "CITY", retries: 0 });
-      //await sendText(user, "📍 Escríbenos tu dirección exacta:");
+      await sendText(user, "📍 Dinos de donde eres:");
       break;
     }
 
@@ -233,7 +233,7 @@ export const handleFlow = async (user, input) => {
         return;
       }
       setState(user, { ...state, payment: input, step: "CITY_DETAIL", retries: 0 });
-      await sendButtons(user, `📍 Dinos de donde eres:`,
+      await sendButtons(user, ``,
         [
           { id: "NARANJO", title: "📍 NARANJO" },
           { id: "PALMARES", title: "📍 PALMARES" },
@@ -490,6 +490,11 @@ export const handleFlow = async (user, input) => {
       return resetState(user);
     }
 
+    case "SALIR": {
+      await sendText(user, "✅ Gracias por comunicarte con MonterosGas. ¡Hasta pronto!");
+      return resetState(user);
+    }
+
     default:
       await sendText(user, "⚠️ No entendí tu respuesta. Por favor selecciona una opción del menú.");
       return;
@@ -503,7 +508,7 @@ const buildSummaryAndConfirm = async (user, order, address) => {
   let precioProducto = 0;
   
   try {
-    precioProducto = Number(await getProductPrice(order.type));
+    precioProducto = Number(await getProductPrice(order.size));
 
   } catch (err) {
     console.error("Error obteniendo precio:", err.message);
@@ -525,7 +530,7 @@ const buildSummaryAndConfirm = async (user, order, address) => {
     `📦 Producto: ${typeLabel[order.type] || order.type} ${sizeLabel}\n` +
     `🔢 Cantidad: ${order.quantity}\n` +
     `💰 Total: ${formatCRC(total)}\n` +
-    `📍 Dirección: ${order.city} +, + ${address}\n` +
+    `📍 Dirección: ${order.city}, ${address}\n` +
     `💳 Pago: ${order.payment}\n` +
     `👤 Nombre: ${order.FullName}\n`;
 
