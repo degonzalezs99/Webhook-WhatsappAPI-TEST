@@ -227,7 +227,7 @@ export const handleFlow = async (user, input) => {
     }
 
     case "CITY": {
-      if (!isValidOption(input, ["SINPE", "EFECTIVO", "TRANSFERENCIA"])) {
+      if (!isValidOption(input, ["NARANJO", "PALMARES", "OTHER_CITY"])) {
         const stop = await handleRetry(user, state, "⚠️ Selecciona un método de pago válido.");
         if (stop) return;
         return;
