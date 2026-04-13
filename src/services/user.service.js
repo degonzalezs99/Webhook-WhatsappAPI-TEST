@@ -45,19 +45,19 @@ export const getProducts = async () => {
   return await getProductsAPI();
 };
 // Obtener precio de producto por ID
-export const getProductPrice = async (productId) => {
+export const getProductPrice = async (productName) => {
   const products = await getProducts();
 
-  const product = products.find(p => p.ProductId === productId);
+  const product = products.find(p => p.ProductName === productName);
 
   if (!product) {
-    throw new Error(`❌ Producto ${productId} no encontrado`);
+    throw new Error(`❌ Producto ${productName} no encontrado`);
   }
 
   const price = Number(product.Price || product.UnitPrice || 0);
 
   if (!price) {
-    throw new Error(`❌ Producto ${productId} no tiene precio`);
+    throw new Error(`❌ Producto ${productName} no tiene precio`);
   }
 
   return price;
@@ -87,13 +87,14 @@ export const createWorkorder = async (data) => {
     // 🔥 1. Traer producto real (NO confiar en frontend)
     const products = await getProducts();
 
-    const product = products.find(p => p.ProductId === data.productId);
+    const product = products.find(p => p.ProductName === data.productName);
 
     if (!product) {
       throw new Error("Producto no encontrado");
     }
 
     const unitPrice = product.Price;
+    const productId = product.ProductId;
     const quantity = Number(data.quantity);
 
     // 🔥 2. Calcular total
@@ -128,7 +129,7 @@ export const createWorkorder = async (data) => {
       // 🔥 DETALLE DE PRODUCTOS
       Items: [
         {
-          ProductId: data.productId,
+          ProductId: productId,
           Quantity: quantity,
           UnitPrice: unitPrice,
         },

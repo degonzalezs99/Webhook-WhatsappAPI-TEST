@@ -37,10 +37,10 @@ export const handleFlow = async (user, input) => {
     const existingUser = await getUserByPhone(user.phone);
     console.log("Existing user:", existingUser);
 
-    if (existingUser.name) {
+    if (existingUser.FullName) {
       // ✅ Usuario encontrado, actualizamos nombre en memoria y arrancamos
-      user.nombre = existingUser.name;
-      await sendButtons(user, `⚡ ¡Hola ${existingUser.name}! Bienvenido/a de nuevo a MonterosGas. 🔥\n¿En qué podemos ayudarte?`,
+      user.nombre = existingUser.FullName;
+      await sendButtons(user, `⚡ ¡Hola ${existingUser.FullName}! Bienvenido/a de nuevo a MonterosGas. 🔥\n¿En qué podemos ayudarte?`,
         [
           { id: "VENTAS", title: "🛒 Ventas y Recargas" },
           { id: "ACCESORIOS", title: "🔧 Accesorios" },
@@ -433,14 +433,14 @@ export const handleFlow = async (user, input) => {
           // 2. Obtener ID
           const customerId = customer.CustomerId;
           // 3. Calcular total con producto real (NO confiar en frontend)
-          const precioProducto = Number(await getProductPrice(state.productId));
+          const precioProducto = Number(await getProductPrice(state.type));
           const totalCalculado = precioProducto * parseInt(state.quantity);
 
           // 3. Crear orden con ID de cliente-Payload 
           const orderPayload = {
               WorkorderType: "productos",
               Status: "En Proceso",
-              Costumer: state.tempName, 
+              Costumer: state.FullName, 
               WhatsappMessageId: user.messageId,
               WhatsappId: user.phoneNumberId,
               PlaceId: await getIDPlace(state.city),
@@ -500,35 +500,18 @@ export const handleFlow = async (user, input) => {
 // 🧾 Helper: construye resumen y pide confirmación
 // ─────────────────────────────────────────────
 const buildSummaryAndConfirm = async (user, order, address) => {
-  let price = 0;
-  let productId = null;
-
+  let precioProducto = 0;
+  
   try {
-    const products = await getProducts();
-    const sizeKey = order.size
-      ?.replace("CONTAINER_", "")
-      ?.replace("RECHARGE_", "")
-      ?.replace("_RO", " Rosca")
-      ?.replace("_PR", " Presión");
+    precioProducto = Number(await getProductPrice(order.type));
 
-    const match = products.find(
-      (p) =>
-        p.size === sizeKey &&
-        p.type?.toUpperCase() === order.type
-    );
-
-    if (match) {
-      price = match.price;
-      productId = match.id || match._id;
-    }
   } catch (err) {
     console.error("Error obteniendo precio:", err.message);
   }
 
-  const total = price * (order.quantity || 1);
+  const total = precioProducto * (order.quantity || 1);
   
   // Formateo de moneda local
-  
   const formatCRC = (n) =>
     new Intl.NumberFormat("es-CR", { style: "currency", currency: "CRC" }).format(n);
 
@@ -542,9 +525,9 @@ const buildSummaryAndConfirm = async (user, order, address) => {
     `📦 Producto: ${typeLabel[order.type] || order.type} ${sizeLabel}\n` +
     `🔢 Cantidad: ${order.quantity}\n` +
     `💰 Total: ${formatCRC(total)}\n` +
-    `📍 Dirección: ${address}\n` +
+    `📍 Dirección: ${order.city} +, + ${address}\n` +
     `💳 Pago: ${order.payment}\n` +
-    `👤 Nombre: ${user.nombre}\n`;
+    `👤 Nombre: ${order.FullName}\n`;
 
   if (order.invoice) {
     summary +=
