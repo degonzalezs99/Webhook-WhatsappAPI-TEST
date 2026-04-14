@@ -346,14 +346,11 @@ export const handleFlow = async (user, input) => {
       }
 
       if (!state.isNewCustomer) {
-          let summaryFactu =
-              `🧾 *Tenemos tus datos de factura electrónica:* ✅\n` +
-              `📧 Email: state.EmailCustomer\n` +
-              `🏢 Actividad: state.ActEconCustomer\n` +
-              `🪪 Cédula: state.CedCustomer\n`;
-
       setState(user, { ...state, invoice: true, step: "INVOICE_USER", retries: 0 });      
-      await sendButtons(user, summaryFactu, 
+      await sendButtons(user,   `🧾 *Tenemos tus datos de factura electrónica:* ✅
+                  📧 Email: ${state.EmailCustomer}
+                  🏢 Actividad: ${state.ActEconCustomer}
+                  🪪 Cédula: ${state.CedCustomer}`, 
       [
         { id: "INVOICE_FACT_SI", title: "✅ Sí, son correctos" },
         { id: "INVOICE_FACT_NO", title: "❌ No, Llenar de nuevo" },
