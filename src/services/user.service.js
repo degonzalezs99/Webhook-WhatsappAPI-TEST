@@ -102,10 +102,11 @@ export const getIDPlace = async (place) => {
 // Crear orden de trabajo
 export const createWorkorder = async (data) => {
   try {
-    // 🔥 1. Traer producto real (NO confiar en frontend)
+    /* // 🔥 1. Traer producto real (NO confiar en frontend)
+    console.log("🔍 info flujo:", data);
     const products = await getProducts();
 
-    const product = products.find(p => p.ProductName === data.productName);
+    const product = products.find(p => p.ProductId === data.Items.productID);
 
     if (!product) {
       throw new Error("Producto no encontrado");
@@ -113,32 +114,32 @@ export const createWorkorder = async (data) => {
 
     const unitPrice = product.Price;
     const productId = product.ProductId;
-    const quantity = Number(data.quantity);
-
+    const quantity = Number(data.quantity); */
+/* 
     // 🔥 2. Calcular total
-    const totalAmount = unitPrice * quantity;
+    const totalAmount = unitPrice * quantity; */
 
     // 🔥 3. Construir payload correcto
     const payload = {
-      WorkorderType: data.type || "PRODUCTO",
-      Status: "PENDIENTE",
+      WorkorderType: data.WorkorderType || "productos",
+      Status: data.Status || "en proceso",
 
       // ✅ ID del cliente
-      Costumer: data.customerId,
+      Costumer: data.Costumer,
 
-      PhoneNumber: formatPhoneForDB(data.customerPhone),
+      PhoneNumber: data.PhoneNumber,
 
       Address: data.address,
       PaymentMethod: data.paymentMethod,
-      PayType: data.paymentMethod,
+      PayType: data.PayType,
 
       // 🔥 WhatsApp tracking
       WhatsappMessageId: data.messageId,
       WhatsappId: data.phoneNumberId,
 
-      Place: data.place || "1",
+      PlaceID: data.PlaceId || "1",
 
-      TotalAmount: totalAmount,
+      TotalAmount: data.TotalAmount || 0,
 
       RequestAt: new Date(),
 
@@ -147,9 +148,9 @@ export const createWorkorder = async (data) => {
       // 🔥 DETALLE DE PRODUCTOS
       Items: [
         {
-          ProductId: productId,
-          Quantity: quantity,
-          UnitPrice: unitPrice,
+          ProductId: data.Items.productID,
+          Quantity: data.Items.quantity,
+          UnitPrice: data.Items.unitPrice,
         },
       ],
     };
