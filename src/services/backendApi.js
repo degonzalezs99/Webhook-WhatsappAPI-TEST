@@ -47,7 +47,8 @@ export const createWorkOrderAPI = async (orderPayload) => {
 // ─────────────────────────────────────────────
 
 export const getPlaceIDAPI = async (place) => {
-  const { data } = await api.get(`/api/places/placeID-whatsapp/${place}`);
+  const encoded = encodeURIComponent(place);
+  const { data } = await api.get(`/api/places/placeID-whatsapp/${encoded}`);
   return data;
 };
 
