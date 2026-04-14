@@ -15,10 +15,9 @@ const api = axios.create({
 
 
 
-// ─────────────────────────────────────────────
-// 🛍️ PRODUCTOS
-// ─────────────────────────────────────────────
 
+//#region 🛍️ PRODUCTOS
+// ─────────────────────────────────────────────
 // Obtener todos los productos
 export const getProductsAPI = async () => {
   const { data } = await api.get("/api/products/list-products-whatsapp");
@@ -30,9 +29,9 @@ export const getProductById = async (id) => {
   const { data } = await api.get(`/api/products/${id}`);
   return data;
 };
+//#endregion
 
-// ─────────────────────────────────────────────
-// 📋 WORK ORDERS
+//#region 📋 WORKORDERS
 // ─────────────────────────────────────────────
 
 // Crear orden
@@ -41,20 +40,23 @@ export const createWorkOrderAPI = async (orderPayload) => {
   const { data } = await api.post("/api/workorders/create-workorder-whatsapp", orderPayload);
   return data;
 };
+//#endregion
 
+
+//#region 📋 PLACES
 // ─────────────────────────────────────────────
-// 📋 Lugares
-// ─────────────────────────────────────────────
+
 
 export const getPlaceIDAPI = async (place) => {
   const encoded = encodeURIComponent(place);
   const { data } = await api.get(`/api/places/placeID-whatsapp/${encoded}`);
   return data.id;
 };
+//#endregion
 
 
-// ─────────────────────────────────────────────
-// 👤 CUSTOMERS
+
+//#region 👤 CUSTOMERS
 // ─────────────────────────────────────────────
 
 // Buscar cliente por teléfono
@@ -105,8 +107,11 @@ export const updateCustomer = async (phone, payload) => {
     throw error;
   }
 };
+//#endregion
 
 
+//#region TEST
+// ─────────────────────────────────────────────
 export const CustomerTest = async (phone) => {
   console.log("Phone received for test:", phone);
 
@@ -116,3 +121,4 @@ export const CustomerTest = async (phone) => {
 
   return data;
 };
+//#endregion

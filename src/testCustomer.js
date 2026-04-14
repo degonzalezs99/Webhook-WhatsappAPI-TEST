@@ -17,9 +17,9 @@ async function test() {
     const productDetailUrl = `https://monterosgas.com/bck/api/places/placeID-whatsapp/${encoded}`;
 
     
-    console.log("➡️ URL:", productDetailUrl);
+    console.log("➡️ URL:", url);
 
-    const res = await axios.get(productDetailUrl, {
+    const res = await axios.get(url, {
       headers: {
         "x-api-key": API_KEY,
       },
@@ -27,7 +27,7 @@ async function test() {
     });
 
     console.log("✅ STATUS:", res.status);
-    console.log("📦 DATA:", res.data.id);
+    console.log("📦 DATA:", res.data);
 
   } catch (error) {
     console.error("❌ ERROR STATUS:", error.response?.status);

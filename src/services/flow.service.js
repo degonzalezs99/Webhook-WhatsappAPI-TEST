@@ -47,7 +47,7 @@ export const handleFlow = async (user, input) => {
           { id: "SERVICIO_CLIENTE", title: "👨‍💼 Soporte" },
         ]
       );
-      return setState(user, { ...state, step: "MENU", initialized: true, FullName: existingUser.FullName, isNewCustomer: false,});
+      return setState(user, { ...state, step: "MENU", initialized: true, FullName: existingUser.FullName, EmailCustomer: existingUser.Email, ActEconCustomer: existingUser.ActEcon, CedCustomer: existingUser.Ced, isNewCustomer: false,});
 
     } else if (existingUser === "Cliente no encontrado") {
       // ❌ Usuario nuevo → pedimos nombre
@@ -345,10 +345,36 @@ export const handleFlow = async (user, input) => {
         return await buildSummaryAndConfirm(user, { ...state, invoice: false }, state.address);
       }
 
-      // Con factura → pedimos datos
-      setState(user, { ...state, invoice: true, step: "INVOICE_EMAIL", retries: 0 });
-      await sendText(user, "📧 Ingresa tu correo electrónico para la factura:");
+      if (!state.isNewCustomer) {
+          let summaryFactu =
+              `🧾 *Tenemos tus datos de factura electrónica:* ✅\n` +
+              `📧 Email: state.EmailCustomer\n` +
+              `🏢 Actividad: state.ActEconCustomer\n` +
+              `🪪 Cédula: state.CedCustomer\n`;
+
+      setState(user, { ...state, invoice: true, step: "INVOICE_USER", retries: 0 });      
+      await sendButtons(user, summaryFactu, 
+      [
+        { id: "INVOICE_FACT_SI", title: "✅ Sí, son correctos" },
+        { id: "INVOICE_FACT_NO", title: "❌ No, Llenar de nuevo" },
+      ]);
       break;
+      }else if (state.isNewCustomer){
+          setState(user, { ...state, invoice: true, step: "INVOICE_EMAIL", retries: 0 });
+          await sendText(user, "📧 Ingresa tu correo electrónico para la factura:");
+          break;
+      }
+    }
+
+     case "INVOICE_USER": {
+      // Validación básica de email
+      if (input === "INVOICE_FACT_SI"){
+          setState(user, { ...state, invoice: true, invoiceEmail: state.EmailCustomer, invoiceActividad: state.ActEconCustomer, invoiceCedula: state.CedCustomer, step: "INVOICE_ACTIVIDAD", retries: 0 });
+      } else if (input === "INVOICE_FACT_NO"){
+          setState(user, { ...state, invoice: true, step: "INVOICE_EMAIL", retries: 0 });
+          await sendText(user, "No hay problema.\n 📧 Ingresa tu correo electrónico para la factura:");
+          break;
+      }
     }
 
     case "INVOICE_EMAIL": {
@@ -408,7 +434,7 @@ export const handleFlow = async (user, input) => {
       }
 
       if (input === "CONFIRM") {
-        //try {
+        try {
           console.log("Es cliente Nuevo:", state.isNewCustomer);
           if (state.isNewCustomer){
             await createCustomer({
@@ -474,7 +500,7 @@ export const handleFlow = async (user, input) => {
               PayType: "contado",
               TotalAmount: totalCalculado, // 🔥 lo calculas con productos
               RequestAt: new Date(),
-              DeliveryAt: new Date(),
+              DeliveryAt: null,
               Active: true,
               CustomerID: customerId,
               Items: [
@@ -490,18 +516,18 @@ export const handleFlow = async (user, input) => {
 
           const newOrder = await createWorkorder({...orderPayload     });
         
-          await sendText(
-            user,
-            `🎉 ¡Orden creada! Tu número de pedido es *#${newOrder.id || newOrder._id || newOrder.orderId}*.`
+          await sendText(user,
+            `🎉 ¡Orden creada! Tu número de pedido es *#${newOrder.workorderId || newOrder._workorderId || newOrder.orderId}*.`
           );
 
-//} catch (error) {
-        //  console.error("Error creando orden:", error.message);
-        //  await sendText(
-        //    user,
-        //    "⚠️ Hubo un problema al procesar tu orden. Por favor contáctanos directamente."
-       //   );
-       // }
+        } catch (error) {
+          console.error("Error creando orden:", error.message);
+          await sendText(
+            user,
+            "⚠️ Hubo un problema al procesar tu orden. Por favor contáctanos directamente."
+          );
+          return resetState(user);
+        }
 
       } else {
         await sendText(user, "❌ Pedido cancelado. ¡Cuando gustes vuelve!");
