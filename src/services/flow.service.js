@@ -249,8 +249,8 @@ export const handleFlow = async (user, input) => {
 
       if (input === "ADDRESS_OK") {
         setState(user, { ...state,  step: "ADDRESS", retries: 0 });
-        await sendText(user, "📍Vamos a usar tu direccion.");
-        break;
+        return await sendText(user, "📍Vamos a usar tu direccion.");
+        
       }
       else if (input === "ADDRESS_INCORRECT") {
         setState(user, { ...state, step: "CITY_DETAIL", retries: 0 });
@@ -349,8 +349,11 @@ export const handleFlow = async (user, input) => {
 
     case "ADDRESS": {
       let addressFlow = state.canton + ", " + state.city + ", " + input;
-      setState(user, { ...state, address: addressFlow, step: "INVOICE", retries: 0 });
-
+      if (state.isNewCustomer) {
+        setState(user, { ...state, address: addressFlow, step: "INVOICE", retries: 0 });
+      }else{
+        setState(user, { ...state, step: "INVOICE", retries: 0 });
+      }
       // 🧾 Preguntamos si desea factura electrónica
       await sendButtons(user, "🧾 ¿Deseas factura electrónica?", [
         { id: "INVOICE_SI", title: "✅ Sí, la quiero" },
@@ -529,7 +532,7 @@ export const handleFlow = async (user, input) => {
               BillType: state.invoice ? "factura" : "tiquete",
               PaymentMethod: state.payment,
               PayType: "contado",
-              TotalAmount: totalCalculado, // 🔥 lo calculas con productos
+              TotalAmount: totalCalculado, 
               RequestAt: new Date(),
               DeliveryAt: null,
               Active: true,
