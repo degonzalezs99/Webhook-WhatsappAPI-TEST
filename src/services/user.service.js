@@ -63,6 +63,24 @@ export const getProductPrice = async (productName) => {
   return price;
 };
 
+export const getProductID = async (productName) => {
+  const products = await getProducts();
+
+  const product = products.find(p => p.ProductName === productName);
+
+  if (!product) {
+    throw new Error(`❌ Producto ${productName} no encontrado`);
+  }
+
+  const productID = Number(product.ProductId || 1);
+
+  if (!productID) {
+    throw new Error(`❌ Producto ${productName} no tiene ID`);
+  }
+
+  return productID;
+};
+
 // ─────────────────────────────────────────────
 // PLACES
 // ─────────────────────────────────────────────

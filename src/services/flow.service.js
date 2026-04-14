@@ -1,6 +1,6 @@
 import { sendButtons, sendText, sendList } from "./whatsapp.service.js";
 import { getState, setState, resetState } from "../utils/stateManager.js";
-import { getUserByPhone, createCustomer, updateUser, createWorkorder, getProductPrice, getIDPlace } from "../services/user.service.js";
+import { getUserByPhone, createCustomer, updateUser, createWorkorder, getProductPrice, getIDPlace, getProductID } from "../services/user.service.js";
 import { formatPhoneForDB } from "../utils/phone.js";
 import { create } from "domain";
 
@@ -436,6 +436,18 @@ export const handleFlow = async (user, input) => {
           const precioProducto = Number(await getProductPrice(state.type));
           const totalCalculado = precioProducto * parseInt(state.quantity);
 
+
+          const typeLabel = { CONTAINER: "Envase", RECHARGE: "Recarga", ACCESORIO: "Accesorio" };
+          const sizeLabel = order.size
+            ? order.size.replace("CONTAINER_", "").replace("RECHARGE_", "").replace("_", " ")
+            : order.product;
+          let productName = `${typeLabel[order.type] || order.type} ${sizeLabel}`;
+          let productId = await getProductID(productName);
+
+
+
+
+
           // 3. Crear orden con ID de cliente-Payload 
           const orderPayload = {
               WorkorderType: "productos",
@@ -456,13 +468,14 @@ export const handleFlow = async (user, input) => {
               CustomerID: customerId,
               Items: [
                 {
-                  ProductId: state.productId,
+                  ProductId: productId,
                   Quantity: parseInt(state.quantity),
                   UnitPrice: precioProducto, // lo sacas del API de productos
                 },
               ],
             };
 
+          console.log("Payload para nueva orden:", orderPayload);
           const newOrder = await createWorkorder({...orderPayload     });
         
           await sendText(
@@ -509,6 +522,7 @@ export const handleFlow = async (user, input) => {
 const buildSummaryAndConfirm = async (user, order, address) => {
   let precioProducto = 0;
   let productName = "";
+
   const typeLabel = { CONTAINER: "Envase", RECHARGE: "Recarga", ACCESORIO: "Accesorio" };
   const sizeLabel = order.size
     ? order.size.replace("CONTAINER_", "").replace("RECHARGE_", "").replace("_", " ")
