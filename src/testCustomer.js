@@ -8,15 +8,18 @@ async function test() {
 
     //const phone = encodeURIComponent("+506 2563-2562");
     const phone = encodeURIComponent("+506 6038-4406");
-    
+    const encoded = encodeURIComponent("Tres Marías");
 
     const url = `https://monterosgas.com/bck/api/customers/by-phone/${phone}`;
 
     const productListUrl = 'https://monterosgas.com/bck/api/products/list-products-whatsapp';
 
-    console.log("➡️ URL:", productListUrl);
+    const productDetailUrl = `https://monterosgas.com/bck/api/places/placeID-whatsapp/${encoded}`;
 
-    const res = await axios.get(productListUrl, {
+    
+    console.log("➡️ URL:", productDetailUrl);
+
+    const res = await axios.get(productDetailUrl, {
       headers: {
         "x-api-key": API_KEY,
       },
