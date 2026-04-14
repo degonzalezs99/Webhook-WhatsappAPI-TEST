@@ -100,66 +100,13 @@ export const getIDPlace = async (place) => {
 // ─────────────────────────────────────────────
 
 // Crear orden de trabajo
-export const createWorkorder = async (data) => {
-  //try {
-    /* // 🔥 1. Traer producto real (NO confiar en frontend)
-    console.log("🔍 info flujo:", data);
-    const products = await getProducts();
-
-    const product = products.find(p => p.ProductId === data.Items.productID);
-
-    if (!product) {
-      throw new Error("Producto no encontrado");
-    }
-
-    const unitPrice = product.Price;
-    const productId = product.ProductId;
-    const quantity = Number(data.quantity); */
-/* 
-    // 🔥 2. Calcular total
-    const totalAmount = unitPrice * quantity; */
-
-    // 🔥 3. Construir payload correcto
-    const payload = {
-      WorkorderType: data.WorkorderType || "productos",
-      Status: data.Status || "en proceso",
-
-      // ✅ ID del cliente
-      Costumer: data.Costumer,
-
-      PhoneNumber: data.PhoneNumber,
-
-      Address: data.address,
-      PaymentMethod: data.paymentMethod,
-      PayType: data.PayType,
-
-      // 🔥 WhatsApp tracking
-      WhatsappMessageId: data.messageId,
-      WhatsappId: data.phoneNumberId,
-
-      PlaceID: data.PlaceId || "1",
-
-      TotalAmount: data.TotalAmount || 0,
-
-      RequestAt: new Date(),
-
-      Active: true,
-
-      // 🔥 DETALLE DE PRODUCTOS
-      Items: [
-        {
-          ProductId: data.Items.productID,
-          Quantity: data.Items.quantity,
-          UnitPrice: data.Items.unitPrice,
-        },
-      ],
-    };
-
-    return await createWorkOrderAPI(payload);
-
-  //} catch (error) {
-   // console.error("❌ Error creando orden:", error.response?.data || error.message);
-  //  throw error;
-  //}
+export const createWorkorder = async (payload) => {
+  try {
+    const response = await createWorkOrderAPI(payload);
+    return response;
+  } catch (error) {
+    console.error("❌ Error creando orden:", error.response?.data || error.message);
+    throw error;
+  }
 };
 
