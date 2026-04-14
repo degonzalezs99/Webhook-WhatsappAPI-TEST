@@ -248,8 +248,12 @@ export const handleFlow = async (user, input) => {
     case "ADDRESS_CONFIRM": {
 
       if (input === "ADDRESS_OK") {
-        setState(user, { ...state,  step: "ADDRESS", retries: 0 });
-        return await sendText(user, "📍Vamos a usar tu direccion.");
+        setState(user, { ...state,  step: "INVOICE", retries: 0 });
+        //return await sendText(user, "📍Vamos a usar tu direccion.");
+        return await sendButtons(user, "📍Vamos a usar tu direccion.;\n🧾 ¿Deseas factura electrónica?", [
+        { id: "INVOICE_SI", title: "✅ Sí, la quiero" },
+        { id: "INVOICE_NO", title: "❌ No, gracias" },
+      ]);
         
       }
       else if (input === "ADDRESS_INCORRECT") {
