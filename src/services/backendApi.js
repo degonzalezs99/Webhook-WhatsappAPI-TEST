@@ -37,7 +37,8 @@ export const getProductById = async (id) => {
 
 // Crear orden
 export const createWorkOrderAPI = async (orderPayload) => {
-  const { data } = await api.post("/api/workorders", orderPayload);
+  console.log("Payload recibido para crear orden:", orderPayload);
+  const { data } = await api.post("/api/workorders/create-workorder-whatsapp", orderPayload);
   return data;
 };
 
