@@ -54,7 +54,7 @@ export const getProductPrice = async (productName) => {
     throw new Error(`❌ Producto ${productName} no encontrado`);
   }
 
-  const price = Number(product.Price || product.UnitPrice || 0);
+  const price = Number(product.SalePrice || 0);
 
   if (!price) {
     throw new Error(`❌ Producto ${productName} no tiene precio`);
