@@ -27,7 +27,7 @@ async function test() {
     });
 
     console.log("✅ STATUS:", res.status);
-    console.log("📦 DATA:", res.data);
+    console.log("📦 DATA:", res.data.id);
 
   } catch (error) {
     console.error("❌ ERROR STATUS:", error.response?.status);

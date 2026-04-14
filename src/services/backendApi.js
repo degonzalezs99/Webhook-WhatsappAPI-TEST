@@ -49,7 +49,7 @@ export const createWorkOrderAPI = async (orderPayload) => {
 export const getPlaceIDAPI = async (place) => {
   const encoded = encodeURIComponent(place);
   const { data } = await api.get(`/api/places/placeID-whatsapp/${encoded}`);
-  return data;
+  return data.id;
 };
 
 

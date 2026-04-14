@@ -481,7 +481,7 @@ export const handleFlow = async (user, input) => {
                 {
                   ProductId: productId,
                   Quantity: parseInt(state.quantity),
-                  UnitPrice: precioProducto, // lo sacas del API de productos
+                  UnitPrice: precioProducto, 
                 },
               ],
             };
