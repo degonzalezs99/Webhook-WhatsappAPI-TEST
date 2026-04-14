@@ -47,7 +47,7 @@ export const handleFlow = async (user, input) => {
           { id: "SERVICIO_CLIENTE", title: "👨‍💼 Soporte" },
         ]
       );
-      return setState(user, { ...state, step: "MENU", initialized: true, FullName: existingUser.FullName, EmailCustomer: existingUser.EmailJuridical, ActEconCustomer: existingUser.EconomicActivity, CedCustomer: existingUser.JuridicalId, isNewCustomer: false,});
+      return setState(user, { ...state, step: "MENU", initialized: true, FullName: existingUser.FullName, invoiceEmail: existingUser.EmailJuridical, invoiceActividad: existingUser.EconomicActivity, invoiceCedula: existingUser.JuridicalId, isNewCustomer: false,});
 
     } else if (existingUser === "Cliente no encontrado") {
       // ❌ Usuario nuevo → pedimos nombre
@@ -348,9 +348,9 @@ export const handleFlow = async (user, input) => {
       if (!state.isNewCustomer) {
       setState(user, { ...state, invoice: true, step: "INVOICE_USER", retries: 0 });      
       await sendButtons(user,   `🧾 *Tenemos tus datos de factura electrónica:*\n`+
-                  `📧 Email: ${state.EmailCustomer}\n`+
-                  `🏢 Actividad: ${state.ActEconCustomer}\n`+
-                  `🪪 Cédula: ${state.CedCustomer}`, 
+                  `📧 Email: ${state.invoiceEmail}\n`+
+                  `🏢 Actividad: ${state.invoiceActividad}\n`+
+                  `🪪 Cédula: ${state.invoiceCedula}`, 
       [
         { id: "INVOICE_FACT_SI", title: "✅ Correctos" },
         { id: "INVOICE_FACT_NO", title: "❌ Corregir" },
@@ -366,7 +366,7 @@ export const handleFlow = async (user, input) => {
      case "INVOICE_USER": {
       // Validación básica de email
       if (input === "INVOICE_FACT_SI"){
-          setState(user, { ...state, invoice: true, invoiceEmail: state.EmailCustomer, invoiceActividad: state.ActEconCustomer, invoiceCedula: state.CedCustomer, step: "INVOICE_ACTIVIDAD", retries: 0 });
+          setState(user, { ...state, invoice: true, step: "INVOICE_ACTIVIDAD", retries: 0 });
           await sendText(user, "Datos de Facturacion, Correctos!");
           return await buildSummaryAndConfirm(user, { ...state, invoice: true }, state.address);
 
@@ -580,7 +580,7 @@ const buildSummaryAndConfirm = async (user, order, address) => {
   // Formateo de moneda local
   const formatCRC = (n) =>
     new Intl.NumberFormat("es-CR", { style: "currency", currency: "CRC" }).format(n);
-
+  console.log("➡️ Resumen", order );
 
   let summary =
     `🧾 *Resumen de tu pedido:*\n\n` +
