@@ -101,7 +101,7 @@ export const getIDPlace = async (place) => {
 
 // Crear orden de trabajo
 export const createWorkorder = async (data) => {
-  try {
+  //try {
     /* // 🔥 1. Traer producto real (NO confiar en frontend)
     console.log("🔍 info flujo:", data);
     const products = await getProducts();
@@ -157,9 +157,9 @@ export const createWorkorder = async (data) => {
 
     return await createWorkOrderAPI(payload);
 
-  } catch (error) {
-    console.error("❌ Error creando orden:", error.response?.data || error.message);
-    throw error;
-  }
+  //} catch (error) {
+   // console.error("❌ Error creando orden:", error.response?.data || error.message);
+  //  throw error;
+  //}
 };
 
