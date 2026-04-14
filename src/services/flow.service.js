@@ -408,7 +408,7 @@ export const handleFlow = async (user, input) => {
       }
 
       if (input === "CONFIRM") {
-        try {
+        //try {
           console.log("Es cliente Nuevo:", state.isNewCustomer);
           if (state.isNewCustomer){
             await createCustomer({
@@ -446,7 +446,7 @@ export const handleFlow = async (user, input) => {
           let productId = await getProductID(productName);
 
 
-          
+
 
 
           // 3. Crear orden con ID de cliente-Payload 
@@ -485,13 +485,13 @@ export const handleFlow = async (user, input) => {
             `🎉 ¡Orden creada! Tu número de pedido es *#${newOrder.id || newOrder._id || newOrder.orderId}*.`
           );
 
-        } catch (error) {
-          console.error("Error creando orden:", error.message);
-          await sendText(
-            user,
-            "⚠️ Hubo un problema al procesar tu orden. Por favor contáctanos directamente."
-          );
-        }
+//} catch (error) {
+        //  console.error("Error creando orden:", error.message);
+        //  await sendText(
+        //    user,
+        //    "⚠️ Hubo un problema al procesar tu orden. Por favor contáctanos directamente."
+       //   );
+       // }
 
       } else {
         await sendText(user, "❌ Pedido cancelado. ¡Cuando gustes vuelve!");
