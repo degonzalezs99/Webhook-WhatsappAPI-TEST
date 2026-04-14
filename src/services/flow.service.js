@@ -480,6 +480,8 @@ export const handleFlow = async (user, input) => {
 
       } else {
         await sendText(user, "❌ Pedido cancelado. ¡Cuando gustes vuelve!");
+        resetState(user);
+        return;
       }
 
       return resetState(user);
@@ -506,9 +508,16 @@ export const handleFlow = async (user, input) => {
 // ─────────────────────────────────────────────
 const buildSummaryAndConfirm = async (user, order, address) => {
   let precioProducto = 0;
-  
+  let productName = "";
+  const typeLabel = { CONTAINER: "Envase", RECHARGE: "Recarga", ACCESORIO: "Accesorio" };
+  const sizeLabel = order.size
+    ? order.size.replace("CONTAINER_", "").replace("RECHARGE_", "").replace("_", " ")
+    : order.product;
+
+  productName = `${typeLabel[order.type] || order.type} ${sizeLabel}`;
+
   try {
-    precioProducto = Number(await getProductPrice(order.size));
+    precioProducto = Number(await getProductPrice(productName));
 
   } catch (err) {
     console.error("Error obteniendo precio:", err.message);
@@ -520,14 +529,10 @@ const buildSummaryAndConfirm = async (user, order, address) => {
   const formatCRC = (n) =>
     new Intl.NumberFormat("es-CR", { style: "currency", currency: "CRC" }).format(n);
 
-  const typeLabel = { CONTAINER: "Envase", RECHARGE: "Recarga", ACCESORIO: "Accesorio" };
-  const sizeLabel = order.size
-    ? order.size.replace("CONTAINER_", "").replace("RECHARGE_", "").replace("_", " ")
-    : order.product;
 
   let summary =
     `🧾 *Resumen de tu pedido:*\n\n` +
-    `📦 Producto: ${typeLabel[order.type] || order.type} ${sizeLabel}\n` +
+    `📦 Producto: ${productName}\n` +
     `🔢 Cantidad: ${order.quantity}\n` +
     `💰 Total: ${formatCRC(total)}\n` +
     `📍 Dirección: ${order.city}, ${address}\n` +
@@ -549,5 +554,5 @@ const buildSummaryAndConfirm = async (user, order, address) => {
     { id: "CANCEL", title: "❌ Cancelar" },
   ]);
 
-  return setState(user, { ...order, address, productId, step: "CONFIRM", retries: 0 });
+  return setState(user, { ...order, address, step: "CONFIRM", retries: 0 });
 };
