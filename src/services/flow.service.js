@@ -433,16 +433,20 @@ export const handleFlow = async (user, input) => {
           // 2. Obtener ID
           const customerId = customer.CustomerId;
           // 3. Calcular total con producto real (NO confiar en frontend)
-          const precioProducto = Number(await getProductPrice(state.type));
-          const totalCalculado = precioProducto * parseInt(state.quantity);
-
-
           const typeLabel = { CONTAINER: "Envase", RECHARGE: "Recarga", ACCESORIO: "Accesorio" };
           const sizeLabel = state.size
             ? state.size.replace("CONTAINER_", "").replace("RECHARGE_", "").replace("_", " ")
             : state.product;
 
           let productName = `${typeLabel[state.type] || state.type} ${sizeLabel}`;
+
+
+
+          const precioProducto = Number(await getProductPrice(productName));
+          const totalCalculado = precioProducto * parseInt(state.quantity);
+
+
+   
           let productId = await getProductID(productName);
 
 
