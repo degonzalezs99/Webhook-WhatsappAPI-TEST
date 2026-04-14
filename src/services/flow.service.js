@@ -2,17 +2,14 @@ import { sendButtons, sendText, sendList } from "./whatsapp.service.js";
 import { getState, setState, resetState } from "../utils/stateManager.js";
 import { getUserByPhone, createCustomer, updateUser, createWorkorder, getProductPrice, getIDPlace, getProductID } from "../services/user.service.js";
 import { formatPhoneForDB } from "../utils/phone.js";
-import { create } from "domain";
 
  
 export const handleFlow = async (user, input) => {
   const state = getState(user);
   const isValidOption = (input, validOptions) => validOptions.includes(input);
-  // let newCustomer = 'Existe';
   const normalize = (text) => (text || "").trim().toUpperCase();
   input = normalize(input || "");
-
-  const MAX_RETRIES = 2;
+  const MAX_RETRIES = 2; //Maximos intentos antes de reiniciar el flujo
   const handleRetry = async (user, state, message) => {
     const retries = state.retries || 0;
     if (retries >= MAX_RETRIES) {
@@ -35,7 +32,6 @@ export const handleFlow = async (user, input) => {
   if (!state?.initialized) {
     
     const existingUser = await getUserByPhone(user.phone);
-    //console.log("Existing user:", existingUser);
 
     if (existingUser.FullName) {
       // ✅ Usuario encontrado, actualizamos nombre en memoria y arrancamos
@@ -138,6 +134,9 @@ export const handleFlow = async (user, input) => {
       break;
     }
 
+    // ─────────────────────────────────────────────
+    // 📋 PRODUCTOS
+    // ─────────────────────────────────────────────
     case "PRODUCT_TYPE": {
       if (["CONTAINER", "RECHARGE"].includes(input)) {
         const isContainer = input === "CONTAINER";
@@ -215,6 +214,9 @@ export const handleFlow = async (user, input) => {
       break;
     }
 
+    // ─────────────────────────────────────────────
+    //  PAGOS
+    // ─────────────────────────────────────────────
     case "PAYMENT": {
       if (!isValidOption(input, [ "SINPE", "EFECTIVO", "TRANSFERENCIA"])) {
         const stop = await handleRetry(user, state, "⚠️ Selecciona un método de pago válido.");
@@ -245,6 +247,10 @@ export const handleFlow = async (user, input) => {
       }
     }
 
+
+    // ─────────────────────────────────────────────
+    //  DIRECCION
+    // ─────────────────────────────────────────────
     case "ADDRESS_CONFIRM": {
 
       if (input === "ADDRESS_OK") {
@@ -271,9 +277,6 @@ export const handleFlow = async (user, input) => {
       }
 
     }
-
-
-
 
     case "CITY_DETAIL": {
       setState(user, { ...state, canton: input, retries: 0 });
@@ -463,17 +466,21 @@ export const handleFlow = async (user, input) => {
       return await buildSummaryAndConfirm(user, updatedState, updatedState.address);
     }
 
+    // ─────────────────────────────────────────────
+    // 🧾 CONFIRMACION DE PEDIDO
+    // ─────────────────────────────────────────────
+
+
     case "CONFIRM": {
       if (!isValidOption(input, ["CONFIRM", "CANCEL"])) {
         const stop = await handleRetry(user, state, "⚠️ Selecciona una opción válida.");
         if (stop) return;
         return;
       }
-      //let fullAdress = `${state.canton}, ${state.address}`;
 
       if (input === "CONFIRM") {
         try {
-          //console.log("Es cliente Nuevo:", state.isNewCustomer);
+          
           if (state.isNewCustomer){
             await createCustomer({
                 FullName: state.tempName,
@@ -501,28 +508,11 @@ export const handleFlow = async (user, input) => {
           const sizeLabel = state.size
             ? state.size.replace("CONTAINER_", "").replace("RECHARGE_", "").replace("_", " ")
             : state.product;
-
           let productName = `${typeLabel[state.type] || state.type} ${sizeLabel}`;
-
-
-
           const precioProducto = Number(await getProductPrice(productName));
           const totalCalculado = precioProducto * parseInt(state.quantity);
-
-
-   
           let productId = await getProductID(productName);
           let placeId = await getIDPlace(state.city);
-
-
-
-  /*         console.log("➡️ Producto seleccionado:", productName);
-          console.log("➡️ Precio obtenido:", precioProducto);
-          console.log("➡️ Total calculado:", totalCalculado);
-          console.log("➡️ Product ID:", productId, parseInt(state.quantity));
-          console.log("➡️ varios:", placeId,user.messageId, user.phoneNumberId);
-          console.log("➡️ State:", state); */
-
           // 3. Crear orden con ID de cliente-Payload 
           const orderPayload = {
               WorkorderType: "productos",
@@ -550,10 +540,7 @@ export const handleFlow = async (user, input) => {
               ],
             };
 
-          //console.log("Payload para nueva orden:", orderPayload);
-
           const newOrder = await createWorkorder({...orderPayload     });
-        
           await sendText(user,
             `🎉 ¡Orden creada! Tu número de pedido es *#${newOrder.workorderId || newOrder._workorderId || newOrder.orderId}*.`
           );
@@ -572,17 +559,14 @@ export const handleFlow = async (user, input) => {
         resetState(user);
         return;
       }
-
       return resetState(user);
     }
+    // ─────────────────────────────────────────────
+    // 🧾 SOPORTE 
+    // ─────────────────────────────────────────────
 
     case "SUPPORT": {
       await sendText(user, "📞 Un agente te contactará pronto. ¡Gracias!");
-      return resetState(user);
-    }
-
-    case "SALIR": {
-      await sendText(user, "✅ Gracias por comunicarte con MonterosGas. ¡Hasta pronto!");
       return resetState(user);
     }
 
@@ -605,20 +589,16 @@ const buildSummaryAndConfirm = async (user, order, address) => {
     : order.product;
 
   productName = `${typeLabel[order.type] || order.type} ${sizeLabel}`;
-
   try {
     precioProducto = Number(await getProductPrice(productName));
 
   } catch (err) {
     console.error("Error obteniendo precio:", err.message);
   }
-
   const total = precioProducto * (order.quantity || 1);
-  
   // Formateo de moneda local
   const formatCRC = (n) =>
     new Intl.NumberFormat("es-CR", { style: "currency", currency: "CRC" }).format(n);
-  //console.log("➡️ Resumen", order );
 
   let summary =
     `🧾 *Resumen de tu pedido:*\n\n` +
@@ -628,7 +608,6 @@ const buildSummaryAndConfirm = async (user, order, address) => {
     `📍 Dirección: ${order.address}\n` +
     `💳 Pago: ${order.payment}\n` +
     `👤 Nombre: ${order.FullName}\n`;
-
   if (order.invoice) {
     summary +=
       `\n🧾 *Factura electrónica:* ✅\n` +
@@ -636,13 +615,11 @@ const buildSummaryAndConfirm = async (user, order, address) => {
       `🏢 Actividad: ${order.invoiceActividad}\n` +
       `🪪 Cédula: ${order.invoiceCedula}\n`;
   }
-
   await sendText(user, summary);
   await sendText(user, "⏱️ Tu pedido será procesado inmediatamente al confirmar.");
   await sendButtons(user, "¿Deseas confirmar?", [
     { id: "CONFIRM", title: "✅ Confirmar" },
     { id: "CANCEL", title: "❌ Cancelar" },
   ]);
-
   return setState(user, { ...order, address, step: "CONFIRM", retries: 0 });
 };

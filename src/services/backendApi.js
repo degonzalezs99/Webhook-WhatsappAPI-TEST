@@ -1,8 +1,5 @@
 import { formatPhoneForDB } from "../utils/phone.js";
-
-
 import axios from "axios";
-
 
 const api = axios.create({
   baseURL: process.env.BACKEND_URL,
@@ -12,9 +9,6 @@ const api = axios.create({
   },
   timeout: 8000,
 });
-
-
-
 
 //#region 🛍️ PRODUCTOS
 // ─────────────────────────────────────────────
@@ -33,7 +27,6 @@ export const getProductById = async (id) => {
 
 //#region 📋 WORKORDERS
 // ─────────────────────────────────────────────
-
 // Crear orden
 export const createWorkOrderAPI = async (orderPayload) => {
   console.log("Payload recibido para crear orden:", orderPayload);
@@ -42,11 +35,8 @@ export const createWorkOrderAPI = async (orderPayload) => {
 };
 //#endregion
 
-
 //#region 📋 PLACES
 // ─────────────────────────────────────────────
-
-
 export const getPlaceIDAPI = async (place) => {
   const encoded = encodeURIComponent(place);
   const { data } = await api.get(`/api/places/placeID-whatsapp/${encoded}`);
@@ -54,11 +44,8 @@ export const getPlaceIDAPI = async (place) => {
 };
 //#endregion
 
-
-
 //#region 👤 CUSTOMERS
 // ─────────────────────────────────────────────
-
 // Buscar cliente por teléfono
 export const getCustomerByPhone = async (phone) => {
   try {
@@ -80,8 +67,6 @@ export const createCustomerAPI = async (customerData) => {
   //console.log("Nuevo cliente creado en backend:", data);
   return data;
 };
-
-
 
 // Actualizar cliente
 export const updateCustomer = async (phone, payload) => {
@@ -108,7 +93,6 @@ export const updateCustomer = async (phone, payload) => {
   }
 };
 //#endregion
-
 
 //#region TEST
 // ─────────────────────────────────────────────

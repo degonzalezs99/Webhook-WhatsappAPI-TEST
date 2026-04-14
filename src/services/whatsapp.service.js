@@ -3,6 +3,7 @@ import { WHATSAPP_TOKEN, PHONE_NUMBER_ID } from "../config/env.js";
 
 const API = `https://graph.facebook.com/v18.0/${PHONE_NUMBER_ID}/messages`;
 
+// Enviar mensaje de texto con botones (interactive)
 export const sendButtons = async (to, body, buttons) => {
   await axios.post(
     API,
@@ -29,7 +30,7 @@ export const sendButtons = async (to, body, buttons) => {
     }
   );
 };
-
+// Enviar mensaje de texto con lista (interactive)
 export const sendList = async (to, body, buttonText, sections) => {
   await axios.post(
     API,
@@ -54,8 +55,7 @@ export const sendList = async (to, body, buttonText, sections) => {
     }
   );
 };
-
-
+// Enviar mensaje de texto simple
 export const sendText = async (to, text) => {
   try {
     const response = await axios.post(
@@ -72,8 +72,6 @@ export const sendText = async (to, text) => {
         },
       }
     );
-
-    //console.log("✅ Enviado:", response.data);
   } catch (error) {
     console.error("❌ Error enviando:", error.response?.data || error.message);
   }
