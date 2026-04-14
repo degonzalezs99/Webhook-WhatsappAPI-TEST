@@ -47,7 +47,7 @@ export const handleFlow = async (user, input) => {
           { id: "SERVICIO_CLIENTE", title: "👨‍💼 Soporte" },
         ]
       );
-      return setState(user, { ...state, step: "MENU", initialized: true, FullName: existingUser.FullName, EmailCustomer: existingUser.Email, ActEconCustomer: existingUser.ActEcon, CedCustomer: existingUser.Ced, isNewCustomer: false,});
+      return setState(user, { ...state, step: "MENU", initialized: true, FullName: existingUser.FullName, EmailCustomer: existingUser.EmailJuridical, ActEconCustomer: existingUser.EconomicActivity, CedCustomer: existingUser.JuridicalId, isNewCustomer: false,});
 
     } else if (existingUser === "Cliente no encontrado") {
       // ❌ Usuario nuevo → pedimos nombre
