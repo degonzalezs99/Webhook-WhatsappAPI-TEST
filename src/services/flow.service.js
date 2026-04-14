@@ -47,7 +47,7 @@ export const handleFlow = async (user, input) => {
           { id: "SERVICIO_CLIENTE", title: "👨‍💼 Soporte" },
         ]
       );
-      return setState(user, { ...state, step: "MENU", initialized: true, FullName: existingUser.FullName, invoiceEmail: existingUser.EmailJuridical, invoiceActividad: existingUser.EconomicActivity, invoiceCedula: existingUser.JuridicalId, isNewCustomer: false,});
+      return setState(user, { ...state, step: "MENU", initialized: true, FullName: existingUser.FullName, invoiceEmail: existingUser.EmailJuridical, invoiceActividad: existingUser.EconomicActivity, invoiceCedula: existingUser.JuridicalId, address:existingUser.Address, isNewCustomer: false,});
 
     } else if (existingUser === "Cliente no encontrado") {
       // ❌ Usuario nuevo → pedimos nombre
@@ -221,29 +221,58 @@ export const handleFlow = async (user, input) => {
         if (stop) return;
         return;
       }
-/*       setState(user, { ...state, payment: input, step: "CITY", retries: 0 });
-      await sendText(user, "📍 Dinos de donde eres:");
+
+       if (!state.isNewCustomer) {
+      setState(user, { ...state,payment: input, step: "ADDRESS_CONFIRM", retries: 0 });      
+      await sendButtons(user,   `📍 *Tenemos tu dirección:*\n`+
+                  `${state.address}\n¿Deseas usar esta dirección para tu pedido?`,
+      [
+        { id: "ADDRESS_OK", title: "✅ Correcto" },
+        { id: "ADDRESS_INCORRECT", title: "❌ Corregir" },
+      ]);
       break;
+
+      }else if (state.isNewCustomer){
+        setState(user, { ...state, payment: input, step: "CITY_DETAIL", retries: 0 });
+        await sendButtons(user, `📍 Dinos de donde eres:`,
+          [
+            { id: "NARANJO", title: "📍 NARANJO" },
+            { id: "PALMARES", title: "📍 PALMARES" },
+            { id: "OTHER_CITY", title: "📍 OTROS CANTONES" },
+          ]
+        );
+        break;
+      }
     }
 
-    case "CITY": {
-      if (!isValidOption(input, ["SINPE", "EFECTIVO", "TRANSFERENCIA"])) {
-        const stop = await handleRetry(user, state, "⚠️ Selecciona un método de pago válido.");
-        if (stop) return;
-        return;
-      } */
-      setState(user, { ...state, payment: input, step: "CITY_DETAIL", retries: 0 });
-      await sendButtons(user, `📍 Dinos de donde eres:`,
-        [
-          { id: "NARANJO", title: "📍 NARANJO" },
-          { id: "PALMARES", title: "📍 PALMARES" },
-          { id: "OTHER_CITY", title: "📍 OTROS CANTONES" },
-        ]
-      );
-      break;
+    case "ADDRESS_CONFIRM": {
+
+      if (input === "ADDRESS_OK") {
+        setState(user, { ...state,  step: "ADDRESS", retries: 0 });
+        await sendText(user, "📍Vamos a usar tu direccion.");
+        break;
+      }
+      else if (input === "ADDRESS_INCORRECT") {
+        setState(user, { ...state, step: "CITY_DETAIL", retries: 0 });
+        await sendButtons(user, `📍 Dinos de donde eres:`,
+          [
+            { id: "NARANJO", title: "📍 NARANJO" },
+            { id: "PALMARES", title: "📍 PALMARES" },
+            { id: "OTHER_CITY", title: "📍 OTROS CANTONES" },
+          ]
+        );
+        break;
+
+
+      }
+
     }
+
+
+
 
     case "CITY_DETAIL": {
+      setState(user, { ...state, canton: input, retries: 0 });
       if (input === "NARANJO") {
         await sendList(user, "📍 Escoge una opcion de Naranjo:","Ver opciones",
           [
@@ -319,7 +348,8 @@ export const handleFlow = async (user, input) => {
     }
 
     case "ADDRESS": {
-      setState(user, { ...state, address: input, step: "INVOICE", retries: 0 });
+      let addressFlow = state.canton + ", " + state.city + ", " + input;
+      setState(user, { ...state, address: addressFlow, step: "INVOICE", retries: 0 });
 
       // 🧾 Preguntamos si desea factura electrónica
       await sendButtons(user, "🧾 ¿Deseas factura electrónica?", [
@@ -416,9 +446,9 @@ export const handleFlow = async (user, input) => {
       //if (newCustomer !== 'NUEVO USUARIO') {
       if (!state.isNewCustomer) {
         await updateUser(user.phone, {
-          invoiceEmail: updatedState.invoiceEmail,
-          invoiceActividad: updatedState.invoiceActividad,
-          invoiceCedula: input,
+          EmailJuridical: updatedState.invoiceEmail,
+          EconomicActivity: updatedState.invoiceActividad,
+          JuridicalId: input,
           });
       }
 
@@ -432,6 +462,7 @@ export const handleFlow = async (user, input) => {
         if (stop) return;
         return;
       }
+      //let fullAdress = `${state.canton}, ${state.address}`;
 
       if (input === "CONFIRM") {
         try {
@@ -587,7 +618,7 @@ const buildSummaryAndConfirm = async (user, order, address) => {
     `📦 Producto: ${productName}\n` +
     `🔢 Cantidad: ${order.quantity}\n` +
     `💰 Total: ${formatCRC(total)}\n` +
-    `📍 Dirección: ${order.city}, ${address}\n` +
+    `📍 Dirección: ${order.address}\n` +
     `💳 Pago: ${order.payment}\n` +
     `👤 Nombre: ${order.FullName}\n`;
 
