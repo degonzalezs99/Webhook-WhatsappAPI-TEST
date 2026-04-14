@@ -448,10 +448,16 @@ export const handleFlow = async (user, input) => {
 
    
           let productId = await getProductID(productName);
+          let placeId = await getIDPlace(state.city);
 
 
 
-
+          console.log("➡️ Producto seleccionado:", productName);
+          console.log("➡️ Precio obtenido:", precioProducto);
+          console.log("➡️ Total calculado:", totalCalculado);
+          console.log("➡️ Product ID:", productId, parseInt(state.quantity));
+          console.log("➡️ varios:", placeId,user.messageId, user.phoneNumberId);
+          console.log("➡️ State:", state);
 
           // 3. Crear orden con ID de cliente-Payload 
           const orderPayload = {
@@ -460,7 +466,7 @@ export const handleFlow = async (user, input) => {
               Costumer: state.FullName, 
               WhatsappMessageId: user.messageId,
               WhatsappId: user.phoneNumberId,
-              PlaceId: await getIDPlace(state.city),
+              PlaceId: placeId,
               Address: state.address,
               PhoneNumber: formatPhoneForDB(user.phone),
               BillType: state.invoice ? "factura" : "tiquete",
