@@ -77,7 +77,7 @@ export const getCustomerByPhone = async (phone) => {
 // Crear cliente nuevo
 export const createCustomerAPI = async (customerData) => {
   const { data } = await api.post("/api/customers/create-customer", customerData);
-  console.log("Nuevo cliente creado en backend:", data);
+  //console.log("Nuevo cliente creado en backend:", data);
   return data;
 };
 
@@ -113,10 +113,7 @@ export const updateCustomer = async (phone, payload) => {
 //#region TEST
 // ─────────────────────────────────────────────
 export const CustomerTest = async (phone) => {
-  console.log("Phone received for test:", phone);
-
   const phoneFormatted = formatPhoneForDB(phone);
-  console.log("Formatted phone for test:", phoneFormatted);
   const { data } = await api.get(`/api/customers/by-phone/${phoneFormatted}`);
 
   return data;

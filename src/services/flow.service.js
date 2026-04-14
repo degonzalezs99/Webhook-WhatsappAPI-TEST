@@ -35,7 +35,7 @@ export const handleFlow = async (user, input) => {
   if (!state?.initialized) {
     
     const existingUser = await getUserByPhone(user.phone);
-    console.log("Existing user:", existingUser);
+    //console.log("Existing user:", existingUser);
 
     if (existingUser.FullName) {
       // ✅ Usuario encontrado, actualizamos nombre en memoria y arrancamos
@@ -473,7 +473,7 @@ export const handleFlow = async (user, input) => {
 
       if (input === "CONFIRM") {
         try {
-          console.log("Es cliente Nuevo:", state.isNewCustomer);
+          //console.log("Es cliente Nuevo:", state.isNewCustomer);
           if (state.isNewCustomer){
             await createCustomer({
                 FullName: state.tempName,
@@ -516,12 +516,12 @@ export const handleFlow = async (user, input) => {
 
 
 
-          console.log("➡️ Producto seleccionado:", productName);
+  /*         console.log("➡️ Producto seleccionado:", productName);
           console.log("➡️ Precio obtenido:", precioProducto);
           console.log("➡️ Total calculado:", totalCalculado);
           console.log("➡️ Product ID:", productId, parseInt(state.quantity));
           console.log("➡️ varios:", placeId,user.messageId, user.phoneNumberId);
-          console.log("➡️ State:", state);
+          console.log("➡️ State:", state); */
 
           // 3. Crear orden con ID de cliente-Payload 
           const orderPayload = {
@@ -550,7 +550,7 @@ export const handleFlow = async (user, input) => {
               ],
             };
 
-          console.log("Payload para nueva orden:", orderPayload);
+          //console.log("Payload para nueva orden:", orderPayload);
 
           const newOrder = await createWorkorder({...orderPayload     });
         
@@ -618,7 +618,7 @@ const buildSummaryAndConfirm = async (user, order, address) => {
   // Formateo de moneda local
   const formatCRC = (n) =>
     new Intl.NumberFormat("es-CR", { style: "currency", currency: "CRC" }).format(n);
-  console.log("➡️ Resumen", order );
+  //console.log("➡️ Resumen", order );
 
   let summary =
     `🧾 *Resumen de tu pedido:*\n\n` +

@@ -73,7 +73,7 @@ export const sendText = async (to, text) => {
       }
     );
 
-    console.log("✅ Enviado:", response.data);
+    //console.log("✅ Enviado:", response.data);
   } catch (error) {
     console.error("❌ Error enviando:", error.response?.data || error.message);
   }
