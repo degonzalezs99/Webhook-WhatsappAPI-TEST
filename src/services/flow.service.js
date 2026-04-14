@@ -438,14 +438,15 @@ export const handleFlow = async (user, input) => {
 
 
           const typeLabel = { CONTAINER: "Envase", RECHARGE: "Recarga", ACCESORIO: "Accesorio" };
-          const sizeLabel = order.size
-            ? order.size.replace("CONTAINER_", "").replace("RECHARGE_", "").replace("_", " ")
-            : order.product;
-          let productName = `${typeLabel[order.type] || order.type} ${sizeLabel}`;
+          const sizeLabel = state.size
+            ? state.size.replace("CONTAINER_", "").replace("RECHARGE_", "").replace("_", " ")
+            : state.product;
+
+          let productName = `${typeLabel[state.type] || state.type} ${sizeLabel}`;
           let productId = await getProductID(productName);
 
 
-
+          
 
 
           // 3. Crear orden con ID de cliente-Payload 
@@ -476,6 +477,7 @@ export const handleFlow = async (user, input) => {
             };
 
           console.log("Payload para nueva orden:", orderPayload);
+
           const newOrder = await createWorkorder({...orderPayload     });
         
           await sendText(
