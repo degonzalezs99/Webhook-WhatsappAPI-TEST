@@ -367,9 +367,12 @@ export const handleFlow = async (user, input) => {
       // Validación básica de email
       if (input === "INVOICE_FACT_SI"){
           setState(user, { ...state, invoice: true, invoiceEmail: state.EmailCustomer, invoiceActividad: state.ActEconCustomer, invoiceCedula: state.CedCustomer, step: "INVOICE_ACTIVIDAD", retries: 0 });
+          await sendText(user, "Datos de Facturacion, Correctos!");
+          return await buildSummaryAndConfirm(user, { ...state, invoice: true }, state.address);
+
       } else if (input === "INVOICE_FACT_NO"){
           setState(user, { ...state, invoice: true, step: "INVOICE_EMAIL", retries: 0 });
-          await sendText(user, "No hay problema.\n 📧 Ingresa tu correo electrónico para la factura:");
+          await sendText(user, "No hay problema.\n📧 Ingresa tu correo electrónico para la factura:");
           break;
       }
     }
