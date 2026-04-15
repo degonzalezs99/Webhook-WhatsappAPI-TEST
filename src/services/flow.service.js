@@ -155,14 +155,14 @@ export const handleFlow = async (user, input) => {
                     { id: "CONTAINER_100L", title: "Envase 100L" },
                   ]
                 : [
-                    { id: "RECHARGE_10L", title: "GasLP 10L" },
-                    { id: "RECHARGE_20L", title: "GasLP 20L" },
-                    { id: "RECHARGE_25L_RO", title: "GasLP 25L Rosca" },
-                    { id: "RECHARGE_25L_PR", title: "GasLP 25L Presión" },
-                    { id: "RECHARGE_35L", title: "GasLP 35L" },
-                    { id: "RECHARGE_40L", title: "GasLP 40L" },
-                    { id: "RECHARGE_50L", title: "GasLP 50L" },
-                    { id: "RECHARGE_100L", title: "GasLP 100L" },
+                    { id: "RECHARGE_10L", title: "Recargas Liquido Gas LP 10L" },
+                    { id: "RECHARGE_20L", title: "Recargas Liquido Gas LP 20L" },
+                    { id: "RECHARGE_25L_RO", title: "Recargas Liquido Gas LP 25L Rosca" },
+                    { id: "RECHARGE_25L_PR", title: "Recargas Liquido Gas LP 25L Presión" },
+                    { id: "RECHARGE_35L", title: "Recargas Liquido Gas LP 35L" },
+                    { id: "RECHARGE_40L", title: "Recargas Liquido Gas LP 40L" },
+                    { id: "RECHARGE_50L", title: "Recargas Liquido Gas LP 50L" },
+                    { id: "RECHARGE_100L", title: "Recargas Liquido Gas LP 100L" },
                   ],
             },
           ]
