@@ -1,4 +1,4 @@
-import { sendButtons, sendText, sendList } from "./whatsapp.service.js";
+/* import { sendButtons, sendText, sendList } from "./whatsapp.service.js";
 import { getState, setState, resetState } from "../utils/stateManager.js";
 import { getUserByPhone, createCustomer, updateUser, createWorkorder, getProductPrice, getIDPlace, getProductID } from "../services/user.service.js";
 import { formatPhoneForDB } from "../utils/phone.js";
@@ -238,9 +238,16 @@ export const handleFlow = async (user, input) => {
         setState(user, { ...state, payment: input, step: "CITY_DETAIL", retries: 0 });
         await sendButtons(user, `📍 Dinos de donde eres:`,
           [
-            { id: "NARANJO", title: "📍 NARANJO" },
-            { id: "PALMARES", title: "📍 PALMARES" },
-            { id: "OTHER_CITY", title: "📍 OTROS CANTONES" },
+            { id: "NARANJO", title: "📍 Naranjo" },
+            { id: "CIRRI", title: "📍 Cirrí" },
+            { id: "PALMITOS", title: "📍 Palmitos" },
+            { id: "ROSARIO", title: "📍 Rosario" },
+            { id: "JERONIMO", title: "📍 San Jerónimo" },
+            { id: "JOSE", title: "📍 San Jose" },
+            { id: "JUAN", title: "📍 San Juan" },
+            { id: "MIGUEL", title: "📍 San Miguel" },
+            { id: "OTHER_CITY", title: "📍 Otros Cantones" },
+
           ]
         );
         break;
@@ -266,9 +273,15 @@ export const handleFlow = async (user, input) => {
         setState(user, { ...state, step: "CITY_DETAIL", retries: 0 });
         await sendButtons(user, `📍 Dinos de donde eres:`,
           [
-            { id: "NARANJO", title: "📍 NARANJO" },
-            { id: "PALMARES", title: "📍 PALMARES" },
-            { id: "OTHER_CITY", title: "📍 OTROS CANTONES" },
+            { id: "NARANJO", title: "📍 Naranjo" },
+            { id: "CIRRI", title: "📍 Cirrí" },
+            { id: "PALMITOS", title: "📍 Palmitos" },
+            { id: "ROSARIO", title: "📍 Rosario" },
+            { id: "JERONIMO", title: "📍 San Jerónimo" },
+            { id: "JOSE", title: "📍 San Jose" },
+            { id: "JUAN", title: "📍 San Juan" },
+            { id: "MIGUEL", title: "📍 San Miguel" },
+            { id: "OTHER_CITY", title: "📍 Otros Cantones" },
           ]
         );
         break;
@@ -280,12 +293,19 @@ export const handleFlow = async (user, input) => {
 
     case "CITY_DETAIL": {
       setState(user, { ...state, canton: input, retries: 0 });
-      if (input === "NARANJO") {
+      if (input === "CIRRI") {
         await sendList(user, "📍 Escoge una opcion de Naranjo:","Ver opciones",
           [
             {
-              title: "Naranjo",
+              title: "Cirrí",
               rows: [
+                { id: "Lourdes", title: "Lourdes" },
+
+
+                
+                { id: "Llano Bonito", title: "Llano Bonito" },
+
+
                 { id: "Cirri", title: "Cirri" },
                 { id: "Llano Bonito", title: "Llano Bonito" },
                 { id: "Muro", title: "Muro" },
@@ -608,6 +628,884 @@ const buildSummaryAndConfirm = async (user, order, address) => {
     `📍 Dirección: ${order.address}\n` +
     `💳 Pago: ${order.payment}\n` +
     `👤 Nombre: ${order.FullName}\n`;
+  if (order.invoice) {
+    summary +=
+      `\n🧾 *Factura electrónica:* ✅\n` +
+      `📧 Email: ${order.invoiceEmail}\n` +
+      `🏢 Actividad: ${order.invoiceActividad}\n` +
+      `🪪 Cédula: ${order.invoiceCedula}\n`;
+  }
+  await sendText(user, summary);
+  await sendText(user, "⏱️ Tu pedido será procesado inmediatamente al confirmar.");
+  await sendButtons(user, "¿Deseas confirmar?", [
+    { id: "CONFIRM", title: "✅ Confirmar" },
+    { id: "CANCEL", title: "❌ Cancelar" },
+  ]);
+  return setState(user, { ...order, address, step: "CONFIRM", retries: 0 });
+}; */
+
+
+import { sendButtons, sendText, sendList } from "./whatsapp.service.js";
+import { getState, setState, resetState } from "../utils/stateManager.js";
+import { getUserByPhone, createCustomer, updateUser, createWorkorder, getProductPrice, getIDPlace, getProductID } from "../services/user.service.js";
+import { formatPhoneForDB } from "../utils/phone.js";
+
+ 
+export const handleFlow = async (user, input) => {
+  const state = getState(user);
+  const isValidOption = (input, validOptions) => validOptions.includes(input);
+  const normalize = (text) => (text || "").trim().toUpperCase();
+  input = normalize(input || "");
+  const MAX_RETRIES = 2; //Maximos intentos antes de reiniciar el flujo
+  const handleRetry = async (user, state, message) => {
+    const retries = state.retries || 0;
+    if (retries >= MAX_RETRIES) {
+      await sendText(user, "⚠️ Demasiados intentos. Volvamos a empezar.");
+      resetState(user);
+      return true;
+    }
+    await sendText(user, message);
+    setState(user, { ...state, retries: retries + 1 });
+    return false;
+  };
+
+  console.log("FLOW:", { user, step: state.step, input, state });
+
+  // ─────────────────────────────────────────────
+  // 🔐 VALIDACIÓN DE USUARIO EN EL FLUJO
+  // ─────────────────────────────────────────────
+
+  // Si no hay step aún, verificamos si el usuario existe en BD
+  if (!state?.initialized) {
+    
+    const existingUser = await getUserByPhone(user.phone);
+
+    if (existingUser.FullName) {
+      // ✅ Usuario encontrado, actualizamos nombre en memoria y arrancamos
+      user.nombre = existingUser.FullName;
+      await sendButtons(user, `⚡ ¡Hola ${existingUser.FullName}! Bienvenido/a de nuevo a MonterosGas. 🔥\n¿En qué podemos ayudarte?`,
+        [
+          { id: "VENTAS", title: "🛒 Ventas y Recargas" },
+          { id: "ACCESORIOS", title: "🔧 Accesorios" },
+          { id: "SERVICIO_CLIENTE", title: "👨‍💼 Soporte" },
+        ]
+      );
+      return setState(user, { ...state, step: "MENU", initialized: true, FullName: existingUser.FullName, invoiceEmail: existingUser.EmailJuridical, invoiceActividad: existingUser.EconomicActivity, invoiceCedula: existingUser.JuridicalId, address:existingUser.Address, city:existingUser.PlaceId, isNewCustomer: false,});
+
+    } else if (existingUser === "Cliente no encontrado") {
+      // ❌ Usuario nuevo → pedimos nombre
+      await sendText(user, `👋 ¡Hola! Bienvenido/a a *MonterosGas*. 🔥\nParece que es tu primera vez con nosotros.\n\n¿Cuál es tu nombre?`);
+      return setState(user, { ...state, step: "REGISTER_NAME", initialized: true });
+    }
+  }
+
+  switch (state.step) {
+
+    // ─────────────────────────────────────────────
+    // 📋 REGISTRO DE NUEVO USUARIO
+    // ─────────────────────────────────────────────
+
+    case "REGISTER_NAME": {
+      if (!input || input.length < 2) {
+        const stop = await handleRetry(user, state, "⚠️ Por favor ingresa un nombre válido.");
+        if (stop) return;
+        return;
+      }
+      // Guardamos nombre en estado temporalmente
+      setState(user, {...state, step: "REGISTER_CONFIRM_NAME", tempName: input, retries: 0 });
+
+      await sendButtons(user, `¿Tu nombre es *${input}*?`,
+        [
+          { id: "SI", title: "✅ Sí, correcto" },
+          { id: "NO", title: "✏️ Corregir" },
+        ]);
+      break;
+    }
+
+    case "REGISTER_CONFIRM_NAME": {
+      if (input === "SI") {
+        //newCustomer = 'NUEVO USUARIO';
+        await sendButtons(user,`¡Perfecto, ${state.tempName}! 🎉 Te vamos a registrar.\n\n¿En qué podemos ayudarte?`,
+          [
+            { id: "VENTAS", title: "🛒 Ventas y Recargas" },
+            { id: "ACCESORIOS", title: "🔧 Accesorios" },
+            { id: "SERVICIO_CLIENTE", title: "👨‍💼 Soporte" },
+          ]
+        );
+        return setState(user, {...state, step: "MENU", isNewCustomer: true, retries: 0 });
+      
+      } else if (input === "NO") {
+        await sendText(user, "Sin problema, ¿Cuál es tu nombre?");
+        return setState(user, { ...state, step: "REGISTER_NAME", retries: 0 });
+      }
+      break;
+    }
+
+    // ─────────────────────────────────────────────
+    // 🏠 MENÚ PRINCIPAL
+    // ─────────────────────────────────────────────
+
+    case "WELCOME":
+      await sendButtons(
+        user,
+        `⚡ ¡Hola! Bienvenido/a a MonterosGas. 🔥\nCuéntanos, ¿En qué podemos ayudarte?👇`,
+        [
+          { id: "VENTAS", title: "🛒 Ventas y Recargas" },
+          { id: "ACCESORIOS", title: "🔧 Accesorios" },
+          { id: "SERVICIO_CLIENTE", title: "👨‍💼 Soporte" },
+        ]
+      );
+      return setState(user, { step: "MENU" });
+
+    case "MENU": {
+      //const nombre = state.tempName || user?.nombre || "";
+      if (input === "VENTAS") {
+        await sendButtons(user, "¿Deseas una Recarga o Envase Nuevo?", [
+          { id: "RECHARGE", title: "Recarga Liquido" },
+          { id: "CONTAINER", title: "Envase Nuevo" },
+        ]);
+        return setState(user, {...state, step: "PRODUCT_TYPE" });
+      } else if (input === "ACCESORIOS") {
+        await sendButtons(user, "¿Qué accesorio ocupas?", [
+          { id: "REGULATOR", title: "Regulador" },
+          { id: "MANGUERA", title: "Manguera" },
+          { id: "GAZA", title: "Gaza" },
+        ]);
+        return setState(user, { ...state, type: "ACCESORIO", product: input.title, step: "SIZE", retries: 0 });
+      } else if (input === "SERVICIO_CLIENTE") {
+        await sendText(user, "¿Dinos en qué podemos ayudarte?");
+        return setState(user, {...state, step: "SUPPORT" });
+      } else {
+        await sendText(user, "⚠️ Opción no válida. Por favor, selecciona una opción del menú.");
+      }
+      break;
+    }
+
+    // ─────────────────────────────────────────────
+    // 📋 PRODUCTOS
+    // ─────────────────────────────────────────────
+    case "PRODUCT_TYPE": {
+      if (["CONTAINER", "RECHARGE"].includes(input)) {
+        const isContainer = input === "CONTAINER";
+        await sendList( user, "📦 Selecciona el tamaño","Ver opciones",
+          [
+            {
+              title: isContainer ? "Envases" : "Recargas",
+              rows: isContainer
+                ? [
+                    { id: "CONTAINER_10L", title: "Envase 10Lb" },
+                    { id: "CONTAINER_20L", title: "Envase 20Lb" },
+                    { id: "CONTAINER_25L", title: "Envase 25Lb Llave" },
+                    { id: "CONTAINER_35L", title: "Envase 35Lb" },
+                    { id: "CONTAINER_40L", title: "Envase 40Lb" },
+                    { id: "CONTAINER_50L", title: "Envase 50Lb" },
+                    { id: "CONTAINER_100L", title: "Envase 100Lb" },
+                  ]
+                : [
+                  { id: "RECHARGE_10L", title: "Recarga GasLP 10Lb" },
+                  { id: "RECHARGE_20L", title: "Recarga GasLP 20Lb" },
+                  { id: "RECHARGE_25L_RO", title: "Recarga GasLP 25Lb Rosca" }, 
+                  { id: "RECHARGE_25L_PR", title: "Recarga GasLP 25Lb Pres" }, 
+                  { id: "RECHARGE_35L", title: "Recarga GasLP 35Lb" },
+                  { id: "RECHARGE_40L", title: "Recarga GasLP 40Lb" },
+                  { id: "RECHARGE_45L", title: "Recarga GasLP 45Lb" },
+                  { id: "RECHARGE_50L", title: "Recarga GasLP 50Lb" },
+                  { id: "RECHARGE_100L", title: "Recarga GasLP 100Lb" },
+                  ],
+            },
+          ]
+        );
+        return setState(user, { ...state, type: input, step: "SIZE" });
+      }
+      break;
+    }
+
+    case "SIZE": {
+      if (!input.includes("L") && !["MANGUERA", "GAZA", "REGULADOR"].includes(input)) {
+        const stop = await handleRetry(user, state, "⚠️ Selecciona una opción válida de la lista.");
+        if (stop) return;
+        return;
+      }
+      setState(user, { ...state, size: input, step: "QUANTITY", retries: 0 });
+     
+      await sendList(user, "🔢 ¿Cuántos deseas?","Ver opciones",
+          [
+            {
+              title: "Cantidad",
+              rows: [
+                { id: "1", title: "1" },
+                { id: "2", title: "2" },
+                { id: "3", title: "3" },
+                { id: "4", title: "4" },
+                { id: "5", title: "5" },
+                { id: "6", title: "6" },
+                { id: "7", title: "7" },
+              ]
+            }
+          ]
+        );
+      break;
+    }
+    // ─────────────────────────────────────────────
+    //  CANTIDAD
+    // ─────────────────────────────────────────────
+
+/*     case "QUANTITY": {
+      if (!isValidOption(input, ["1", "2", "3", "4", "5","6","7"])) {
+        const stop = await handleRetry(user, state, "⚠️ Selecciona una cantidad válida.");
+        if (stop) return;
+        return;
+      }
+      setState(user, { ...state, quantity: input, step: "PAYMENT", retries: 0 });
+
+      await sendButtons(user, "💳 Método de pago", [
+        { id: "SINPE", title: "SINPE" },
+        { id: "EFECTIVO", title: "EFECTIVO" },
+        { id: "TRANSFERENCIA", title: "TRANSFERENCIA" },
+      ]);
+      break;
+    } */
+      case "QUANTITY": {
+        const qty = parseInt(input); 
+        if (!isValidOption(input, ["1", "2", "3", "4", "5","6","7"])) {
+          await handleRetry(user, state, "⚠️ Por favor, selecciona una cantidad válida.");
+          return;
+        }
+
+       // 1. Obtener datos del producto actual
+        const typeLabel = { CONTAINER: "Envase", RECHARGE: "Recarga", ACCESORIO: "Accesorio" };
+        const sizeLabel = state.size ? state.size.replace("CONTAINER_", "").replace("RECHARGE_", "").replace("_", " ") : state.product;
+        const pName = `${typeLabel[state.type] || state.type} ${sizeLabel}`;
+        
+        const unitPrice = Number(await getProductPrice(pName));
+        const pId = await getProductID(pName);
+
+
+        // Creamos el nuevo item
+        const newItem = {
+          productId: pId,
+          productName: pName,
+          quantity: qty,
+          unitPrice: unitPrice,
+          totalItem: unitPrice * qty
+        };
+
+        // Guardamos en el carrito (si no existe, lo inicializamos)
+        const currentCart = state.cart || [];
+        const updatedCart = [...(state.cart || []), newItem];
+
+        setState(user, { 
+          ...state, 
+          cart: updatedCart, 
+          step: "CONFIRM_CART", // <--- Nuevo paso
+          retries: 0 
+        });
+
+        await sendButtons(user, `✅ Añadido: ${qty}x ${state.size}.\n¿Deseas agregar otro producto a tu pedido?`, [
+          { id: "ADD_MORE", title: "➕ Agregar otro" },
+          { id: "FINISH", title: "🏁 Finalizar pedido" },
+        ]);
+        break;
+      }
+
+      case "CONFIRM_CART": {
+        if (input === "ADD_MORE") {
+          // Regresamos al menú de ventas pero manteniendo el cart en el state
+          await sendButtons(user, "¿Qué más deseas agregar?", [
+            { id: "RECHARGE", title: "Recarga Liquido" },
+            { id: "CONTAINER", title: "Envase Nuevo" },
+            { id: "ACCESORIOS", title: "🔧 Accesorios" },
+          ]);
+          return setState(user, { ...state, step: "PRODUCT_TYPE" }); 
+        } 
+
+        if (input === "FINISH") {
+            setState(user, { ...state, step: "PAYMENT", retries: 0 });
+          await sendButtons(user, "💳 Método de pago", [
+            { id: "SINPE", title: "SINPE" },
+            { id: "EFECTIVO", title: "EFECTIVO" },
+            { id: "TRANSFERENCIA", title: "TRANSFERENCIA" },
+          ]);
+          break;
+        }
+
+
+/*           // Calculamos el resumen
+          let totalPedido = 0;
+          let resumenText = "📝 *Resumen de tu pedido:*\n\n";
+          
+          state.cart.forEach(item => {
+            resumenText += `• ${item.qty}x ${item.id} - ₡${item.total}\n`;
+            totalPedido += item.total;
+          });
+
+          resumenText += `\n*TOTAL: ₡${totalPedido}*`;
+
+          await sendText(user, resumenText);
+          
+          // Si es cliente nuevo, pedimos dirección. Si ya existe, confirmamos despacho.
+          if (state.address) {
+            await sendButtons(user, `¿Enviamos a la dirección registrada?\n_${state.address}_`, [
+              { id: "CONFIRM_ORDER", title: "✅ Sí, enviar" },
+              { id: "NEW_ADDRESS", title: "📍 Otra dirección" }
+            ]);
+            return setState(user, { ...state, step: "CHECKOUT", total: totalPedido });
+          } else {
+            await sendText(user, "Para finalizar, ¿Cuál es tu dirección exacta?");
+            return setState(user, { ...state, step: "ASK_ADDRESS", total: totalPedido });
+          }
+        }
+        break; */
+      }
+
+
+
+
+
+    // ─────────────────────────────────────────────
+    //  PAGOS
+    // ─────────────────────────────────────────────
+    case "PAYMENT": {
+      if (!isValidOption(input, [ "SINPE", "EFECTIVO", "TRANSFERENCIA"])) {
+        const stop = await handleRetry(user, state, "⚠️ Selecciona un método de pago válido.");
+        if (stop) return;
+        return;
+      }
+
+       if (!state.isNewCustomer) {
+      setState(user, { ...state,payment: input, step: "ADDRESS_CONFIRM", retries: 0 });      
+      await sendButtons(user,   `📍 *Tenemos tu dirección:*\n`+
+                  `${state.address}\n¿Deseas usar esta dirección para tu pedido?`,
+      [
+        { id: "ADDRESS_OK", title: "✅ Correcto" },
+        { id: "ADDRESS_INCORRECT", title: "❌ Corregir" },
+      ]);
+      break;
+
+      }else if (state.isNewCustomer){
+        setState(user, { ...state, payment: input, step: "CITY_DETAIL", retries: 0 });
+        await sendButtons(user, `📍 Dinos de donde eres:`,
+          [
+            { id: "NARANJO", title: "📍 Naranjo" },
+            { id: "CIRRI", title: "📍 Cirrí" },
+            { id: "PALMITOS", title: "📍 Palmitos" },
+            { id: "ROSARIO", title: "📍 Rosario" },
+            { id: "JERONIMO", title: "📍 San Jerónimo" },
+            { id: "JOSE", title: "📍 San Jose" },
+            { id: "JUAN", title: "📍 San Juan" },
+            { id: "MIGUEL", title: "📍 San Miguel" },
+            { id: "OTHER_CITY", title: "📍 Otros Cantones" },
+          ]
+        );
+        break;
+      }
+    }
+
+    // ─────────────────────────────────────────────
+    //  DIRECCION
+    // ─────────────────────────────────────────────
+    case "ADDRESS_CONFIRM": {
+
+      if (input === "ADDRESS_OK") {
+        setState(user, { ...state,  step: "INVOICE", retries: 0 });
+        //return await sendText(user, "📍Vamos a usar tu direccion.");
+        return await sendButtons(user, "📍Vamos a usar tu direccion.;\n🧾 ¿Deseas factura electrónica?", [
+        { id: "INVOICE_SI", title: "✅ Sí, la quiero" },
+        { id: "INVOICE_NO", title: "❌ No, gracias" },
+      ]);
+        
+      }
+      else if (input === "ADDRESS_INCORRECT") {
+        let newAddressCostumer = true;
+        setState(user, { ...state, step: "CITY_DETAIL", retries: 0 });
+        await sendButtons(user, `📍 Dinos de donde eres:`,
+          [
+            { id: "NARANJO", title: "📍 Naranjo" },
+            { id: "CIRRI", title: "📍 Cirrí" },
+            { id: "PALMITOS", title: "📍 Palmitos" },
+            { id: "ROSARIO", title: "📍 Rosario" },
+            { id: "JERONIMO", title: "📍 San Jerónimo" },
+            { id: "JOSE", title: "📍 San Jose" },
+            { id: "JUAN", title: "📍 San Juan" },
+            { id: "MIGUEL", title: "📍 San Miguel" },
+            { id: "OTHER_CITY", title: "📍 Otros Cantones" },
+          ]
+        );
+        break;
+      }
+    }
+
+    case "CITY_DETAIL": {
+      setState(user, { ...state, canton: input, retries: 0 });
+      if (input === "CIRRI") {
+        await sendList(user, "📍 Escoge una opcion de Cirri:","Ver opciones",
+          [
+            {
+              title: "Cirri",
+              rows: [
+                { id: "Lourdes", title: "Lourdes" },      
+                { id: "CruceCirri", title: "Cruce de Cirri" },
+                { id: "CalleDamaris", title: "Calle Damaris" },
+                { id: "CalleRincon", title: "Calle Rincon" },
+                { id: "LlanoBonito", title: "Llano Bonito" },
+                { id: "CalleVarela", title: "Calle Varela" },
+                { id: "UrbGeranios", title: "Urbanización Geranios" },
+              ]
+            }
+          ]
+        );
+        return setState(user, {...state, step: "CITY_ADDRESS" });
+      }
+      else if (input === "NARANJO") {
+        await sendList(user, "📍 Escoge una opcion de Naranjo:","Ver opciones",
+          [
+            {
+              title: "Naranjo",
+              rows: [
+                { id: "Tres Marías", title: "Tres Marías" },
+                { id: "UrbMarin", title: "Urbanización Marin" },
+                { id: "Muro", title: "Muro" },
+                { id: "San Rafael", title: "San Rafael" },
+                { id: "BarrioCarmen", title: "Barrio Carmen" },
+                { id: "Candelaria", title: "Candelaria" },
+                { id: "DulceNombre", title: "Dulce Nombre" },
+                { id: "Conejera", title: "Conejera" },
+              ]
+            }
+          ]
+        );
+        return setState(user, {...state, step: "CITY_ADDRESS" });
+        
+      } 
+      else if (input === "PALMITOS") {
+        await sendList(user, "📍 Escoge una opcion de Palmitos:","Ver opciones",
+          [
+            {
+              title: "Palmitos",
+              rows: [
+                { id: "AltoMurillo", title: "Alto Murillo" },
+                { id: "Concepción", title: "Concepción" },
+                { id: "SanRoque", title: "San Roque" },
+                { id: "AltoPalmas", title: "Alto Palmas" },
+                { id: "CalleCalvo", title: "Calle Calvo" },
+              ]
+            }
+          ]
+        );
+        return setState(user, {...state, step: "CITY_ADDRESS" });
+      } 
+      else if (input === "ROSARIO") {
+        await sendList(user, "📍 Escoge una opcion de Rosario:","Ver opciones",
+          [
+            {
+              title: "Rosario",
+              rows: [
+                { id: "Hornos", title: "Hornos" },
+                { id: "LosVargas", title: "Los Vargas" },
+                { id: "ElLlano", title: "El Llano" },
+                { id: "SantMargarita", title: "Santa Margarita" },
+                { id: "VistaValle", title: "Vistas del Valle" },
+                { id: "CalleHidalgo", title: "Calle Hidalgo" },
+              ]
+            }
+          ]
+        );
+        return setState(user, {...state, step: "CITY_ADDRESS" });
+      } 
+      else if (input === "JERONIMO") {
+        await sendList(user, "📍 Escoge una opcion de San Jerónimo:","Ver opciones",
+          [
+            {
+              title: "San Jerónimo",
+              rows: [
+                { id: "Robles", title: "Robles" },
+                { id: "Tacacal", title: "Tacacal" },
+                { id: "BajoViudas", title: "Bajo Viudas" },
+                { id: "Puebla", title: "Puebla" },
+                { id: "LaHacienda", title: "La Hacienda" },
+              ]
+            }
+          ]
+        );
+        return setState(user, {...state, step: "CITY_ADDRESS" });
+      }
+      else if (input === "JOSE") {
+        await sendList(user, "📍 Escoge una opcion de San José:","Ver opciones",
+          [
+            {
+              title: "San José",
+              rows: [
+                { id: "SanJuanillo", title: "San Juanillo" },
+                { id: "Barranca", title: "Barranca" },
+                { id: "Cañuela", title: "Cañuela" },
+                { id: "IslaCañuela", title: "Isla de Cañuela" },
+                { id: "CalleSolisAbajo", title: "Calle Solís Abajo" },
+              ]
+            }
+          ]
+        );
+        return setState(user, {...state, step: "CITY_ADDRESS" });
+      }
+      else if (input === "JUAN") {
+        await sendList(user, "📍 Escoge una opcion de San Juan:","Ver opciones",
+          [
+            {
+              title: "San Juan",
+              rows: [
+                { id: "BajoMurcielago", title: "Bajo Murciélago" },
+                { id: "SanAntonio", title: "San Antonio" },
+                { id: "Cueva", title: "Cueva" },
+                { id: "Guarumal", title: "Guarumal" },
+                { id: "RioGrande", title: "Rio Grande" },
+                { id: "Yoses", title: "Yoses" },
+              ]
+            }
+          ]
+        );
+        return setState(user, {...state, step: "CITY_ADDRESS" });
+      }
+      else if (input === "MIGUEL") {
+        await sendList(user, "📍 Escoge una opcion de San Miguel:","Ver opciones",
+          [
+            {
+              title: "San Miguel",
+              rows: [
+                { id: "SanMiguelEste", title: "San Miguel Este" },
+                { id: "SanMiguelOeste", title: "San Miguel Oeste" },
+                { id: "Palmas", title: "Palmas" },
+                { id: "LindaVista", title: "Linda Vista" },
+                { id: "CalleAmor", title: "Calle Amor" },
+                { id: "SanFrancisco", title: "San Francisco" },
+                { id: "CalleQuesera", title: "Calle Quesera" },
+                { id: "AltoSitio", title: "Alto del sitio" },
+              ]
+            }
+          ]
+        );
+        return setState(user, {...state, step: "CITY_ADDRESS" });
+      }
+      else if (input === "OTHER_CITY") {
+       await sendList(user, "📍 Escoge otro Cantón:","Ver opciones",
+          [
+            {
+              title: "Otro Cantón",
+              rows: [
+                { id: "Grecia ", title: "Grecia" },
+                { id: "San Ramón", title: "San Ramón" },
+                { id: "Sarchí", title: "Sarchí (Valverde Vega)" },
+                { id: "Otro", title: "Otro Cantón" },
+              ]
+            }
+          ]
+        );
+        return setState(user, {...state, step: "CITY_ADDRESS" });
+      } else {
+        await sendText(user, "⚠️ Opción no válida. Por favor, selecciona una opción del menú.");
+      }
+    }
+
+    case "CITY_ADDRESS": {
+      setState(user, { ...state, city: input, step: "ADDRESS", retries: 0 });
+      await sendText(user, "📍 Escríbenos tu dirección exacta:");
+      break;
+    }
+
+    case "ADDRESS": {
+      let addressFlow = state.canton + ", " + state.city + ", " + input;
+      if (state.isNewCustomer) {
+        setState(user, { ...state, address: addressFlow, step: "INVOICE", retries: 0 });
+      }else{
+        if (newAddressCostumer) {
+          let placeidNotNewCustomer = await getIDPlace(state.city);
+          setState(user, { ...state, address: addressFlow,city:placeidNotNewCustomer, step: "INVOICE", retries: 0 });
+        }
+        else{
+        let placeidNotNewCustomer = await getIDPlace(state.city);
+        setState(user, { ...state, step: "INVOICE", city:placeidNotNewCustomer, retries: 0 });
+        }
+      }
+
+      // 🧾 Preguntamos si desea factura electrónica
+      await sendButtons(user, "🧾 ¿Deseas factura electrónica?", [
+        { id: "INVOICE_SI", title: "✅ Sí, la quiero" },
+        { id: "INVOICE_NO", title: "❌ No, gracias" },
+      ]);
+      break;
+    }
+
+    // ─────────────────────────────────────────────
+    // 🧾 FLUJO DE FACTURA ELECTRÓNICA
+    // ─────────────────────────────────────────────
+
+    case "INVOICE": {
+      if (!isValidOption(input, ["INVOICE_SI", "INVOICE_NO"])) {
+        const stop = await handleRetry(user, state, "⚠️ Por favor selecciona si deseas factura electrónica.");
+        if (stop) return;
+        return;
+      }
+
+      if (input === "INVOICE_NO") {
+        // Sin factura → directo al resumen
+        return await buildSummaryAndConfirm(user, { ...state, invoice: false }, state.address);
+      }
+
+      if (!state.isNewCustomer) {
+      setState(user, { ...state, invoice: true, step: "INVOICE_USER", retries: 0 });      
+      await sendButtons(user,   `🧾 *Tenemos tus datos de factura electrónica:*\n`+
+                  `📧 Email: ${state.invoiceEmail}\n`+
+                  `🏢 Actividad: ${state.invoiceActividad}\n`+
+                  `🪪 Cédula: ${state.invoiceCedula}`, 
+      [
+        { id: "INVOICE_FACT_SI", title: "✅ Correctos" },
+        { id: "INVOICE_FACT_NO", title: "❌ Corregir" },
+      ]);
+      break;
+      }else if (state.isNewCustomer){
+          setState(user, { ...state, invoice: true, step: "INVOICE_EMAIL", retries: 0 });
+          await sendText(user, "📧 Ingresa tu correo electrónico para la factura:");
+          break;
+      }
+    }
+
+     case "INVOICE_USER": {
+      // Validación básica de email
+      if (input === "INVOICE_FACT_SI"){
+          setState(user, { ...state, invoice: true, step: "INVOICE_ACTIVIDAD", retries: 0 });
+          await sendText(user, "Datos de Facturacion, Correctos!");
+          return await buildSummaryAndConfirm(user, { ...state, invoice: true }, state.address);
+
+      } else if (input === "INVOICE_FACT_NO"){
+          setState(user, { ...state, invoice: true, step: "INVOICE_EMAIL", retries: 0 });
+          await sendText(user, "No hay problema.\n📧 Ingresa tu correo electrónico para la factura:");
+          break;
+      }
+    }
+
+    case "INVOICE_EMAIL": {
+      // Validación básica de email
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(input.toLowerCase())) {
+        const stop = await handleRetry(user, state, "⚠️ El correo no parece válido. Ejemplo: correo@dominio.com");
+        if (stop) return;
+        return;
+      }
+
+      setState(user, { ...state, invoiceEmail: input.toLowerCase(), step: "INVOICE_ACTIVIDAD", retries: 0 });
+      await sendText(user, "🏢 ¿Cuál es tu actividad económica?");
+      break;
+    }
+
+    case "INVOICE_ACTIVIDAD": {
+      if (!input || input.length < 3) {
+        const stop = await handleRetry(user, state, "⚠️ Por favor ingresa una actividad económica válida.");
+        if (stop) return;
+        return;
+      }
+      setState(user, { ...state, invoiceActividad: input, step: "INVOICE_CEDULA", retries: 0 });
+      await sendText(user, "🪪 Ingresa tu número de cédula o identificación:");
+      break;
+    }
+
+    case "INVOICE_CEDULA": {
+      // Validación: solo números, entre 9 y 12 dígitos (física/jurídica CR)
+      const cedulaRegex = /^\d{9,12}$/;
+      if (!cedulaRegex.test(input)) {
+        const stop = await handleRetry(user, state, "⚠️ Ingresa una cédula válida (solo números, 9-12 dígitos).");
+        if (stop) return;
+        return;
+      }
+      const updatedState = { ...state, invoiceCedula: input, retries: 0 };
+
+      // ✅ Guardamos datos de factura en BD para futuros pedidos, si el usuario ya existía. Si es nuevo, se guardarán junto con la creación del cliente en el paso de confirmación final.
+      //if (newCustomer !== 'NUEVO USUARIO') {
+      if (!state.isNewCustomer) {
+        await updateUser(user.phone, {
+          EmailJuridical: updatedState.invoiceEmail,
+          EconomicActivity: updatedState.invoiceActividad,
+          JuridicalId: input,
+          });
+      }
+
+      await sendText(user, "✅ Datos de facturación guardados correctamente.");
+      return await buildSummaryAndConfirm(user, updatedState, updatedState.address);
+    }
+
+    // ─────────────────────────────────────────────
+    // 🧾 CONFIRMACION DE PEDIDO
+    // ─────────────────────────────────────────────
+
+
+    case "CONFIRM": {
+      if (!isValidOption(input, ["CONFIRM", "CANCEL"])) {
+        const stop = await handleRetry(user, state, "⚠️ Selecciona una opción válida.");
+        if (stop) return;
+        return;
+      }
+      let placeId = '';
+
+      if (input === "CONFIRM") {
+        try {
+          
+          if (state.isNewCustomer){
+            await createCustomer({
+                FullName: state.tempName,
+                PhoneNumber: formatPhoneForDB(user.phone), 
+                Address: state.address,
+                PlaceId: await getIDPlace(state.city), 
+                EmailJuridical: state.invoiceEmail,
+                JuridicalId: state.invoiceCedula,
+                EconomicActivity: state.invoiceActividad,
+                Createdby: 1,
+                CreatedAt: new Date(),
+                Active: true,
+            });
+            placeId = await getIDPlace(state.city);
+          }
+          else{
+            placeId = state.city;
+          }
+          
+          // 1. Buscar cliente
+          const customer = await getUserByPhone(user.phone);
+
+          if (!customer || customer === "Cliente no encontrado") {
+            throw new Error("Cliente no existe, no se puede crear orden");
+          }
+          // 2. Obtener ID
+          const customerId = customer.CustomerId;
+          // 3. Calcular total con producto real (NO confiar en frontend)
+
+          const orderItems = state.cart.map(item => ({
+            ProductId: item.productId,
+            Quantity: item.quantity,
+            UnitPrice: item.unitPrice
+          }));
+
+
+          const typeLabel = { CONTAINER: "Envase", RECHARGE: "Recarga", ACCESORIO: "Accesorio" };
+          const sizeLabel = state.size
+            ? state.size.replace("CONTAINER_", "").replace("RECHARGE_", "").replace("_", " ")
+            : state.product;
+          let productName = `${typeLabel[state.type] || state.type} ${sizeLabel}`;
+
+          const precioProducto = Number(await getProductPrice(productName));
+          const totalCalculado = precioProducto * parseInt(state.quantity);
+          
+          console.log("Producto:", productName);
+          let productId = await getProductID(productName);
+          
+
+
+          // 3. Crear orden con ID de cliente-Payload 
+          const orderPayload = {
+              WorkorderType: "productos",
+              Status: "En Proceso",
+              Costumer: state.FullName, 
+              WhatsappMessageId: user.messageId,
+              WhatsappId: user.phoneNumberId,
+              PlaceId: placeId,
+              Address: state.address,
+              PhoneNumber: formatPhoneForDB(user.phone),
+              BillType: state.invoice ? "factura" : "tiquete",
+              PaymentMethod: state.payment,
+              PayType: "contado",
+            //  TotalAmount: totalCalculado, 
+              TotalAmount: state.totalAmount,
+              RequestAt: new Date(),
+              DeliveryAt: null,
+              Active: true,
+              CustomerID: customerId,
+              Items: orderItems 
+           /*     [
+                {
+                  ProductId: productId,
+                  Quantity: parseInt(state.quantity),
+                  UnitPrice: precioProducto, 
+                },
+              ], */
+            };
+          console.log("Payload para crear orden:", orderPayload);
+
+          const newOrder = await createWorkorder({...orderPayload     });
+          await sendText(user,
+            `🎉 ¡Orden creada! Tu número de pedido es *#${newOrder.workorderId || newOrder._workorderId || newOrder.orderId}*.`
+          );
+
+        } catch (error) {
+          console.error("Error creando orden:", error.message);
+          await sendText(
+            user,
+            "⚠️ Hubo un problema al procesar tu orden. Por favor contáctanos directamente."
+          );
+          return resetState(user);
+        }
+
+      } else {
+        await sendText(user, "❌ Pedido cancelado. ¡Cuando gustes vuelve!");
+        resetState(user);
+        return;
+      }
+      return resetState(user);
+    }
+    // ─────────────────────────────────────────────
+    // 🧾 SOPORTE 
+    // ─────────────────────────────────────────────
+
+    case "SUPPORT": {
+      await sendText(user, "📞 Un agente te contactará pronto. ¡Gracias!");
+      return resetState(user);
+    }
+
+    default:
+      await sendText(user, "⚠️ No entendí tu respuesta. Por favor selecciona una opción del menú.");
+      return;
+  }
+};
+
+// ─────────────────────────────────────────────
+// 🧾 Helper: construye resumen y pide confirmación
+// ─────────────────────────────────────────────
+const buildSummaryAndConfirm = async (user, order, address) => {
+  const formatCRC = (n) => new Intl.NumberFormat("es-CR", { style: "currency", currency: "CRC" }).format(n);
+
+  let totalPedido = 0;
+  let itemsSummary = "";
+
+  // Iteramos sobre el carrito que guardamos en el state
+  for (const item of order.cart) {
+    itemsSummary += `• ${item.productName} (x${item.quantity}): ${formatCRC(item.totalItem)}\n`;
+    totalPedido += item.totalItem;
+  }
+
+
+
+ //let precioProducto = 0;
+ // let productName = "";
+
+/*   const typeLabel = { CONTAINER: "Envase", RECHARGE: "Recarga", ACCESORIO: "Accesorio" };
+  const sizeLabel = order.size
+    ? order.size.replace("CONTAINER_", "").replace("RECHARGE_", "").replace("_", " ")
+    : order.product;
+
+  productName = `${typeLabel[order.type] || order.type} ${sizeLabel}`;
+  try {
+    precioProducto = Number(await getProductPrice(productName));
+
+  } catch (err) {
+    console.error("Error obteniendo precio:", err.message);
+  }
+  const total = precioProducto * (order.quantity || 1);
+  // Formateo de moneda local */
+  
+  let summary =
+    `🧾 *Resumen de tu pedido:*\n\n` +
+    `📦 Productos: ${itemsSummary}\n` +
+    `💰 Total: ${formatCRC(totalPedido)}\n` +
+    `📍 Dirección: ${order.address}\n` +
+    `💳 Pago: ${order.payment}\n` +
+    `👤 Nombre: ${order.FullName}\n`;
+
+
   if (order.invoice) {
     summary +=
       `\n🧾 *Factura electrónica:* ✅\n` +
