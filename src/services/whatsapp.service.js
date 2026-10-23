@@ -1,7 +1,7 @@
 import axios from "axios";
 import { WHATSAPP_TOKEN, PHONE_NUMBER_ID } from "../config/env.js";
 
-const API = `https://graph.facebook.com/v18.0/${PHONE_NUMBER_ID}/messages`;
+const API = `https://graph.facebook.com/v22.0/${PHONE_NUMBER_ID}/messages`;
 
 // Enviar mensaje de texto con botones (interactive)
 export const sendButtons = async (to, body, buttons) => {
