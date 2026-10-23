@@ -680,17 +680,17 @@ export const handleFlow = async (user, input) => {
     
     const existingUser = await getUserByPhone(user.phone);
 
-    if (existingUser.FullName) {
+    if (existingUser.name) {
       // ✅ Usuario encontrado, actualizamos nombre en memoria y arrancamos
-      user.nombre = existingUser.FullName;
-      await sendButtons(user, `⚡ ¡Hola ${existingUser.FullName}! Bienvenido/a de nuevo a MonterosGas. 🔥\n¿En qué podemos ayudarte?`,
+      user.nombre = existingUser.name;
+      await sendButtons(user, `⚡ ¡Hola ${existingUser.name}! Bienvenido/a de nuevo a MonterosGas. 🔥\n¿En qué podemos ayudarte?`,
         [
           { id: "VENTAS", title: "🛒 Ventas y Recargas" },
           { id: "ACCESORIOS", title: "🔧 Accesorios" },
           { id: "SERVICIO_CLIENTE", title: "👨‍💼 Soporte" },
         ]
       );
-      return setState(user, { ...state, step: "MENU", initialized: true, FullName: existingUser.FullName, invoiceEmail: existingUser.EmailJuridical, invoiceActividad: existingUser.EconomicActivity, invoiceCedula: existingUser.JuridicalId, address:existingUser.Address, city:existingUser.PlaceId, isNewCustomer: false,});
+      return setState(user, { ...state, step: "MENU", initialized: true, FullName: existingUser.name, invoiceEmail: existingUser.EmailJuridical, invoiceActividad: existingUser.EconomicActivity, invoiceCedula: existingUser.JuridicalId, address:existingUser.Address, city:existingUser.PlaceId, isNewCustomer: false,});
 
     } else if (existingUser === "Cliente no encontrado") {
       // ❌ Usuario nuevo → pedimos nombre
